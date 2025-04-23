@@ -9,6 +9,7 @@ import * as Crypto from 'expo-crypto';
 export default function RegisterScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const isValidEmail = (email: string) =>
@@ -22,21 +23,21 @@ export default function RegisterScreen() {
   };
 
   const handleRegister = async () => {
-    if (!email || !password || !confirm) return Alert.alert('Uzupełnij wszystkie pola');
+    if (!email || !username || !password || !confirm) return Alert.alert('Uzupełnij wszystkie pola');
+    if (username.length < 1) return Alert.alert('Nazwa użytkownika nie może być pusta')
     if (!isValidEmail(email)) return Alert.alert('Niepoprawny email');
     if (password.length < 6) return Alert.alert('Hasło musi mieć co najmniej 6 znaków');
     if (password !== confirm) return Alert.alert('Hasła się nie zgadzają');
   
     try {
-    const hashedPassword = await hashPassword(password);
+      const hashedPassword = await hashPassword(password);
       await db.runAsync(
-        `INSERT INTO users (email, password) VALUES (?, ?)`,
-        [email.trim(), hashedPassword]
+        `INSERT INTO users (email, password, username) VALUES (?, ?, ?)`,
+        [email.trim(), hashedPassword, username.trim()]
       );
       Alert.alert('Konto utworzone!');
       router.replace('/');
     } catch (err) {
-      console.error('Błąd rejestracji:', err);
       Alert.alert('Błąd przy rejestracji');
     }
   };
@@ -46,6 +47,7 @@ export default function RegisterScreen() {
         <Text style={styles.title}>Rejestracja</Text>
 
         <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} placeholderTextColor="#aaa" />
+        <TextInput placeholder="Nazwa użytkownika" style={styles.input} value={username} onChangeText={setUsername} placeholderTextColor="#aaa" />
         <TextInput placeholder="Hasło" style={styles.input} value={password} onChangeText={setPassword} secureTextEntry placeholderTextColor="#aaa" />
         <TextInput placeholder="Powtórz hasło" style={styles.input} value={confirm} onChangeText={setConfirm} secureTextEntry placeholderTextColor="#aaa" />
 

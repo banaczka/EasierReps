@@ -56,7 +56,6 @@ export default function LoginScreen() {
         alert('Nieprawidłowy email lub hasło');
       }
     } catch (err) {
-      console.error('Błąd logowania:', err);
       alert('Coś poszło nie tak przy logowaniu');
     }
   };
