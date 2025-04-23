@@ -15,34 +15,21 @@ export default function RegisterScreen() {
   
 
   const handleRegister = async () => {
-    if (!email || !password || !confirm) {
-      return Alert.alert('Uzupełnij wszystkie pola');
-    }
-
-    if (!isValidEmail(email)) {
-        return Alert.alert('Niepoprawny email');
-      }
-
-    if (password.length < 8) {
-        return Alert.alert('Hasło musi mieć co najmniej 6 znaków');
-    }
-      
-
-    if (password !== confirm) {
-      return Alert.alert('Hasła się nie zgadzają');
-    }
-
+    if (!email || !password || !confirm) return Alert.alert('Uzupełnij wszystkie pola');
+    if (!isValidEmail(email)) return Alert.alert('Niepoprawny email');
+    if (password.length < 6) return Alert.alert('Hasło musi mieć co najmniej 6 znaków');
+    if (password !== confirm) return Alert.alert('Hasła się nie zgadzają');
+  
     try {
-      await db.execAsync(`
-        INSERT INTO users (email, password)
-        VALUES ('${email.trim()}', '${password}')
-      `);
-
+      await db.runAsync(
+        `INSERT INTO users (email, password) VALUES (?, ?)`,
+        [email.trim(), password]
+      );
       Alert.alert('Konto utworzone!');
       router.replace('/');
     } catch (err) {
-      console.error('Rejestracja nie działa 😭', err);
-      Alert.alert('Coś się zepsuło...');
+      console.error('Błąd rejestracji:', err);
+      Alert.alert('Błąd przy rejestracji');
     }
   };
 

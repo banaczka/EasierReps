@@ -19,16 +19,17 @@ export default function LoginScreen() {
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      return alert('Wpisz dane logowania');
-    }
+    if (!email || !password) return alert('Wpisz dane logowania');
+    if (!isValidEmail(email)) return alert('Niepoprawny email');
+    if (password.length < 6) return alert('Hasło zbyt krótkie');
   
     try {
-      const result = await db.getFirstAsync(
-        `SELECT * FROM users WHERE email = '${email.trim()}' AND password = '${password}'`
+      const user = await db.getFirstAsync(
+        `SELECT * FROM users WHERE email = ? AND password = ?`,
+        [email.trim(), password]
       );
   
-      if (result) {
+      if (user) {
         router.replace('/(tabs)/dashboard');
       } else {
         alert('Nieprawidłowy email lub hasło');
