@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +11,8 @@ import {
   Platform,
 } from 'react-native';
 import { db } from '@/lib/db';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Crypto from 'expo-crypto';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -18,18 +21,36 @@ export default function LoginScreen() {
   const isValidEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+  useEffect(() => {
+    const checkSession = async () => {
+      const session = await AsyncStorage.getItem('session');
+      if (session) {
+        router.replace('/(tabs)/dashboard');
+      }
+    };
+  
+    checkSession();
+  }, []);
+
+  const hashPassword = async (password: string) => {
+  return await Crypto.digestStringAsync(
+    Crypto.CryptoDigestAlgorithm.SHA256,
+    password
+  );
+};
+
   const handleLogin = async () => {
     if (!email || !password) return alert('Wpisz dane logowania');
-    if (!isValidEmail(email)) return alert('Niepoprawny email');
-    if (password.length < 6) return alert('Hasło zbyt krótkie');
   
     try {
+      const hashedInput = await hashPassword(password);
       const user = await db.getFirstAsync(
         `SELECT * FROM users WHERE email = ? AND password = ?`,
-        [email.trim(), password]
+        [email.trim(), hashedInput]
       );
   
       if (user) {
+        await AsyncStorage.setItem('session', JSON.stringify(user));
         router.replace('/(tabs)/dashboard');
       } else {
         alert('Nieprawidłowy email lub hasło');

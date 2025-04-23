@@ -4,6 +4,7 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform
 } from 'react-native';
 import { db } from '@/lib/db';
+import * as Crypto from 'expo-crypto';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -13,6 +14,12 @@ export default function RegisterScreen() {
   const isValidEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   
+  const hashPassword = async (password: string) => {
+    return await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      password
+    );
+  };
 
   const handleRegister = async () => {
     if (!email || !password || !confirm) return Alert.alert('Uzupełnij wszystkie pola');
@@ -21,9 +28,10 @@ export default function RegisterScreen() {
     if (password !== confirm) return Alert.alert('Hasła się nie zgadzają');
   
     try {
+    const hashedPassword = await hashPassword(password);
       await db.runAsync(
         `INSERT INTO users (email, password) VALUES (?, ?)`,
-        [email.trim(), password]
+        [email.trim(), hashedPassword]
       );
       Alert.alert('Konto utworzone!');
       router.replace('/');
