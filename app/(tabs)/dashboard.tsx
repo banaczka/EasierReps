@@ -19,11 +19,11 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.greeting}>👋 Witaj, {username}!</Text>
+      <Text style={styles.greeting}>Witaj, {username}!</Text>
       <Text style={styles.subtitle}>Gotowy na trening?</Text>
 
       <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Rozpocznij trening 🏋️</Text>
+        <Text style={styles.buttonText}>Rozpocznij trening</Text>
       </TouchableOpacity>
     </View>
   );
