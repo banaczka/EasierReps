@@ -1,21 +1,8 @@
-import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { auth } from '../../lib/firebase';
 
 export default function DashboardScreen() {
-  const [username, setUsername] = useState('');
-
-  useEffect(() => {
-    const loadUser = async () => {
-      const session = await AsyncStorage.getItem('session');
-      if (session) {
-        const user = JSON.parse(session);
-        setUsername(user.username);
-      }
-    };
-
-    loadUser();
-  }, []);
+  const username = auth.currentUser?.displayName ?? auth.currentUser?.email ?? 'Użytkowniku';
 
   return (
     <View style={styles.container}>

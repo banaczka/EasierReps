@@ -1,18 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
-import { db } from '@/lib/db';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Crypto from 'expo-crypto';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import { loginUser } from '../lib/auth';
+import { isUserLoggedIn } from '../lib/auth';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -20,43 +11,23 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    const checkSession = async () => {
-      const session = await AsyncStorage.getItem('session');
-      if (session) {
+    const check = async () => {
+      const loggedIn = await isUserLoggedIn();
+      if (loggedIn) {
         router.replace('/(tabs)/dashboard');
       }
     };
-  
-    checkSession();
+    check();
   }, []);
 
-  const hashPassword = async (password: string) => {
-  return await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    password
-  );
-};
-
   const handleLogin = async () => {
-    if (!email || !password) return alert('Wpisz dane logowania');
-  
-    try {
-      const hashedInput = await hashPassword(password);
-      const user = await db.getFirstAsync(
-        `SELECT * FROM users WHERE email = ? AND password = ?`,
-        [email.trim(), hashedInput]
-      );
-  
-      if (user) {
-        await AsyncStorage.setItem('session', JSON.stringify(user));
-        router.replace('/(tabs)/dashboard');
-      } else {
-        alert('Nieprawidłowy email lub hasło');
-      }
-    } catch (err) {
-      alert('Coś poszło nie tak przy logowaniu');
-    }
-  };
+  try {
+    await loginUser(email, password);
+    router.replace('/(tabs)/dashboard');
+  } catch (error: any) {
+    Alert.alert('Błąd logowania', error.message);
+  }
+};
 
   return (
       <View style={styles.card}>

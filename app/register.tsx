@@ -1,10 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform
+  View, Text, TextInput, TouchableOpacity, StyleSheet, Alert
 } from 'react-native';
-import { db } from '@/lib/db';
-import * as Crypto from 'expo-crypto';
+import { registerUser } from '../lib/auth';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -12,49 +11,60 @@ export default function RegisterScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const isValidEmail = (email: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  
-  const hashPassword = async (password: string) => {
-    return await Crypto.digestStringAsync(
-      Crypto.CryptoDigestAlgorithm.SHA256,
-      password
-    );
-  };
 
   const handleRegister = async () => {
-    if (!email || !username || !password || !confirm) return Alert.alert('Uzupełnij wszystkie pola');
-    if (username.length < 1) return Alert.alert('Nazwa użytkownika nie może być pusta')
-    if (!isValidEmail(email)) return Alert.alert('Niepoprawny email');
-    if (password.length < 6) return Alert.alert('Hasło musi mieć co najmniej 6 znaków');
-    if (password !== confirm) return Alert.alert('Hasła się nie zgadzają');
-  
+    if (!email || !username || !password || password !== confirm) {
+      Alert.alert('Błąd', 'Uzupełnij poprawnie wszystkie pola');
+      return;
+    }
+
     try {
-      const hashedPassword = await hashPassword(password);
-      await db.runAsync(
-        `INSERT INTO users (email, password, username) VALUES (?, ?, ?)`,
-        [email.trim(), hashedPassword, username.trim()]
-      );
-      Alert.alert('Konto utworzone!');
+      await registerUser(email, password, username);
       router.replace('/');
-    } catch (err) {
-      Alert.alert('Błąd przy rejestracji');
+    } catch (error: any) {
+      Alert.alert('Błąd rejestracji', error.message);
     }
   };
 
   return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Rejestracja</Text>
+    <View style={styles.card}>
+      <Text style={styles.title}>Rejestracja</Text>
 
-        <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} placeholderTextColor="#aaa" />
-        <TextInput placeholder="Nazwa użytkownika" style={styles.input} value={username} onChangeText={setUsername} placeholderTextColor="#aaa" />
-        <TextInput placeholder="Hasło" style={styles.input} value={password} onChangeText={setPassword} secureTextEntry placeholderTextColor="#aaa" />
-        <TextInput placeholder="Powtórz hasło" style={styles.input} value={confirm} onChangeText={setConfirm} secureTextEntry placeholderTextColor="#aaa" />
+      <TextInput
+        placeholder="Email"
+        style={styles.input}
+        value={email}
+        onChangeText={setEmail}
+        placeholderTextColor="#aaa"
+      />
+      <TextInput
+        placeholder="Nazwa użytkownika"
+        style={styles.input}
+        value={username}
+        onChangeText={setUsername}
+        placeholderTextColor="#aaa"
+      />
+      <TextInput
+        placeholder="Hasło"
+        style={styles.input}
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        placeholderTextColor="#aaa"
+      />
+      <TextInput
+        placeholder="Powtórz hasło"
+        style={styles.input}
+        value={confirm}
+        onChangeText={setConfirm}
+        secureTextEntry
+        placeholderTextColor="#aaa"
+      />
 
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Zarejestruj się</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.button} onPress={handleRegister}>
+        <Text style={styles.buttonText}>Zarejestruj się</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 

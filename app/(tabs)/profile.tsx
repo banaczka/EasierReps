@@ -1,33 +1,21 @@
 import { useRouter } from 'expo-router';
-import { View, Text, Button, StyleSheet, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { View, Text, Button, StyleSheet } from 'react-native';
+import { auth } from '../../lib/firebase';
+import { logoutUser } from '../../lib/auth';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
-
-  useEffect(() => {
-    const loadUser = async () => {
-      const session = await AsyncStorage.getItem('session');
-      if (session) {
-        const user = JSON.parse(session);
-        setUsername(user.username);
-      }
-    };
-
-    loadUser();
-  })
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem('session');
-    Alert.alert('Wylogowano');
+    await logoutUser();
     router.replace('/');
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Profil użytkownika {username}</Text>
+      <Text style={styles.title}>
+        Zalogowany jako: {auth.currentUser?.displayName ?? auth.currentUser?.email ?? 'Nieznany użytkownik'}
+      </Text>
       <Button title="Wyloguj się" onPress={handleLogout} />
     </View>
   );
