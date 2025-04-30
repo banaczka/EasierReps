@@ -1,9 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import { db } from '../../lib/db';
+import { getUserPlans } from '../../lib/planService';
 
 export default function WorkoutsScreen() {
   const router = useRouter();
@@ -12,19 +11,14 @@ export default function WorkoutsScreen() {
   useFocusEffect(
     useCallback(() => {
       const loadPlans = async () => {
-        const session = await AsyncStorage.getItem('session');
-        if (!session) return;
-
-        const user = JSON.parse(session);
-
-        const results = await db.getAllAsync(
-          `SELECT * FROM plans WHERE userId = ? ORDER BY createdAt DESC`,
-          [user.id]
-        );
-
-        setPlans(results);
+        try {
+          const results = await getUserPlans();
+          setPlans(results);
+        } catch (error) {
+          console.error('Błąd ładowania planów:', error);
+        }
       };
-
+  
       loadPlans();
     }, [])
   );
@@ -50,7 +44,7 @@ export default function WorkoutsScreen() {
             <View style={styles.planItem}>
               <Text style={styles.planName}>{item.name}</Text>
               <Text style={styles.planDays}>
-                {JSON.parse(item.days).join(', ')}
+                {Array.isArray(item.days) ? item.days.join(', ') : ''}
               </Text>
             </View>
           )}

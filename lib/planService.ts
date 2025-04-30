@@ -1,34 +1,47 @@
-import { collection, getDocs, query, where,  addDoc, doc, setDoc } from 'firebase/firestore';
-import { db } from './firebase';
+import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
+import { auth } from './firebase';
 
-export async function getUserPlans(uid: string) {
-  const plansRef = collection(db, 'plans');
-  const q = query(plansRef, where('userId', '==', uid));
+const firestore = getFirestore();
 
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+export async function savePlanForUser(planName: string, selectedDays: string[], exercises: {
+  name: string;
+  sets: string;
+  repsMin: string;
+  repsMax: string;
+}[]) {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Brak zalogowanego użytkownika');
+
+  const planRef = await addDoc(collection(firestore, 'users', user.uid, 'plans'), {
+    name: planName,
+    days: selectedDays,
+    createdAt: new Date().toISOString(),
+  });
+
+  const exercisesRef = collection(firestore, 'users', user.uid, 'plans', planRef.id, 'exercises');
+
+  for (const ex of exercises) {
+    await addDoc(exercisesRef, {
+      name: ex.name.trim(),
+      sets: parseInt(ex.sets),
+      repsRange: `${ex.repsMin.trim()}-${ex.repsMax.trim()}`,
+    });
+  }
+
+  return planRef.id;
 }
 
-export async function addPlanWithExercises(uid: string, planName: string, days: string[], exercises: any[]) {
-    const planRef = await addDoc(collection(db, 'plans'), {
-      userId: uid,
-      name: planName,
-      days: days,
-      createdAt: new Date().toISOString(),
-    });
+export async function getUserPlans() {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Brak zalogowanego użytkownika');
 
-    const exercisesRef = collection(planRef, 'exercises');
+  const plansRef = collection(firestore, 'users', user.uid, 'plans');
+  const snapshot = await getDocs(plansRef);
 
-    await Promise.all(
-      exercises.map((ex) => {
-        return addDoc(exercisesRef, {
-          name: ex.name,
-          sets: parseInt(ex.sets),
-          repsRange: `${ex.repsMin}-${ex.repsMax}`,
-        });
-      })
-    );
-  }
+  const plans = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+
+  return plans;
+}

@@ -9,8 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { db } from '../lib/db';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { savePlanForUser } from '../lib/planService';
 
 const daysOfWeek = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Ndz'];
 
@@ -40,53 +39,25 @@ export default function CreatePlan() {
   };
 
   const savePlan = async () => {
-
-    for (const ex of exercises) {
-        if (
-          !ex.name.trim() ||
-          !ex.sets.trim() ||
-          !ex.repsMin.trim() ||
-          !ex.repsMax.trim()
-        ) {
-          Alert.alert('Wszystkie ćwiczenia muszą być uzupełnione.');
-          return;
-        }
-      }
     if (!planName.trim() || selectedDays.length === 0 || exercises.length === 0) {
       Alert.alert('Uzupełnij wszystkie pola.');
       return;
     }
-
-    try {
-      const session = await AsyncStorage.getItem('session');
-      if (!session) throw new Error('Brak sesji użytkownika');
-
-      const user = JSON.parse(session);
-
-      const result = await db.runAsync(
-        `INSERT INTO plans (userId, name, days) VALUES (?, ?, ?)`,
-        [user.id, planName, JSON.stringify(selectedDays)]
-      );
-
-      const planId = result.lastInsertRowId as number;
-
-      for (const ex of exercises) {
-        await db.runAsync(
-          `INSERT INTO plan_exercises (planId, name, sets, repsRange) VALUES (?, ?, ?, ?)`,
-          [
-            planId,
-            ex.name.trim(),
-            parseInt(ex.sets || '0'),
-            `${ex.repsMin.trim()}-${ex.repsMax.trim()}`
-          ]
-        );
+  
+    for (const ex of exercises) {
+      if (!ex.name.trim() || !ex.sets.trim() || !ex.repsMin.trim() || !ex.repsMax.trim()) {
+        Alert.alert('Wszystkie ćwiczenia muszą być uzupełnione.');
+        return;
       }
-
+    }
+  
+    try {
+      await savePlanForUser(planName, selectedDays, exercises);
       Alert.alert('Plan zapisany!');
       router.replace('/(tabs)/workouts');
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      Alert.alert('Błąd zapisu planu.');
+      Alert.alert('Błąd zapisu planu.', error.message);
     }
   };
 
