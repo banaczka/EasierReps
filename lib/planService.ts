@@ -1,4 +1,4 @@
-import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc } from 'firebase/firestore';
 import { auth } from './firebase';
 
 const firestore = getFirestore();
@@ -44,4 +44,19 @@ export async function getUserPlans() {
   }));
 
   return plans;
+}
+
+export async function deletePlan(planId: string) {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Brak zalogowanego użytkownika');
+
+  const planRef = doc(firestore, 'users', user.uid, 'plans', planId);
+
+  const exercisesRef = collection(firestore, 'users', user.uid, 'plans', planId, 'exercises');
+  const snapshot = await getDocs(exercisesRef);
+
+  const deletePromises = snapshot.docs.map(ex => deleteDoc(ex.ref));
+  await Promise.all(deletePromises);
+
+  await deleteDoc(planRef);
 }

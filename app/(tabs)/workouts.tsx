@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
-import { getUserPlans } from '../../lib/planService';
+import { getUserPlans, deletePlan } from '../../lib/planService';
 
 export default function WorkoutsScreen() {
   const router = useRouter();
@@ -46,10 +46,37 @@ export default function WorkoutsScreen() {
               <Text style={styles.planDays}>
                 {Array.isArray(item.days) ? item.days.join(', ') : ''}
               </Text>
+              <TouchableOpacity
+      style={styles.deleteButton}
+      onPress={async () => {
+        Alert.alert(
+          'Usuń plan',
+          `Czy na pewno chcesz usunąć plan "${item.name}"?`,
+          [
+            { text: 'Anuluj', style: 'cancel' },
+            {
+              text: 'Usuń',
+              style: 'destructive',
+              onPress: async () => {
+                try {
+                  await deletePlan(item.id);
+                  setPlans(prev => prev.filter(p => p.id !== item.id));
+                } catch (e) {
+                  console.error('Błąd usuwania:', e);
+                }
+              }
+            }
+          ]
+        );
+      }}
+    >
+      <Text style={styles.deleteButtonText}>Usuń</Text>
+    </TouchableOpacity>
             </View>
           )}
         />
       )}
+      
     </View>
   );
 }
@@ -97,5 +124,16 @@ container: {
   planDays: {
     color: '#aaa',
     marginTop: 4,
+  },
+  deleteButton: {
+    marginTop: 8,
+    backgroundColor: 'tomato',
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
 });
