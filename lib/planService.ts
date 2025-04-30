@@ -60,3 +60,16 @@ export async function deletePlan(planId: string) {
 
   await deleteDoc(planRef);
 }
+
+export async function getExercisesForPlan(planId: string) {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Brak zalogowanego użytkownika');
+
+  const exercisesRef = collection(firestore, 'users', user.uid, 'plans', planId, 'exercises');
+  const snapshot = await getDocs(exercisesRef);
+
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+}
