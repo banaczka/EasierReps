@@ -2,30 +2,43 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert} from 'react-native';
-import { loginUser } from '../lib/auth';
-import { isUserLoggedIn } from '../lib/auth';
+// import { loginUser } from '../lib/auth';
+// import { isUserLoggedIn } from '../lib/auth';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [error, setError] = useState('');
   const [password, setPassword] = useState('');
 
-  useEffect(() => {
-    const check = async () => {
-      const loggedIn = await isUserLoggedIn();
-      if (loggedIn) {
-        router.replace('/(tabs)/dashboard');
-      }
-    };
-    check();
-  }, []);
+  // useEffect(() => {
+  //   const check = async () => {
+  //     const loggedIn = await isUserLoggedIn();
+  //     if (loggedIn) {
+  //       router.replace('/(tabs)/dashboard');
+  //     }
+  //   };
+  //   check();
+  // }, []);
 
-  const handleLogin = async () => {
-  try {
-    await loginUser(email, password);
-    router.replace('/(tabs)/dashboard');
-  } catch (error: any) {
-    Alert.alert('Błąd logowania', error.message);
+//   const handleLogin = async () => {
+//   try {
+//     await loginUser(email, password);
+//     router.replace('/(tabs)/dashboard');
+//   } catch (error: any) {
+//     Alert.alert('Błąd logowania', error.message);
+//   }
+// };
+
+
+const handleLogin = () => {
+  // Logowanie na sztywno
+  if (username === 'admin' && password === '1234') {
+    setError('');
+    router.push('/dashboard');
+  } else {
+    setError('Nieprawidłowe dane logowania');
   }
 };
 
@@ -37,8 +50,8 @@ export default function LoginScreen() {
           placeholder="Email"
           placeholderTextColor="#aaa"
           style={styles.input}
-          value={email}
-          onChangeText={setEmail}
+          value={username}
+          onChangeText={setUsername}
           keyboardType="email-address"
           autoCapitalize="none"
         />
@@ -51,9 +64,10 @@ export default function LoginScreen() {
           onChangeText={setPassword}
           secureTextEntry
         />
+        {error ? <Text>{error}</Text> : null}
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Zaloguj się</Text>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText} onPress={handleLogin}>Zaloguj się</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.button, styles.button]} onPress={() => router.push('/register')}>
           <Text style={styles.buttonText}>Zarejestruj się</Text>

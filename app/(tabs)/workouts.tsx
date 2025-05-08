@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
-import { getUserPlans, deletePlan } from '../../lib/planService';
+import { useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+// import { getUserPlans, deletePlan } from '../../lib/planService';
 
 export default function WorkoutsScreen() {
   const router = useRouter();
@@ -11,12 +11,12 @@ export default function WorkoutsScreen() {
   useFocusEffect(
     useCallback(() => {
       const loadPlans = async () => {
-        try {
-          const results = await getUserPlans();
-          setPlans(results);
-        } catch (error) {
-          console.error('Błąd ładowania planów:', error);
-        }
+        // try {
+        //   const results = await getUserPlans();
+        //   setPlans(results);
+        // } catch (error) {
+        //   console.error('Błąd ładowania planów:', error);
+        // }
       };
   
       loadPlans();
@@ -58,12 +58,12 @@ export default function WorkoutsScreen() {
               text: 'Usuń',
               style: 'destructive',
               onPress: async () => {
-                try {
-                  await deletePlan(item.id);
-                  setPlans(prev => prev.filter(p => p.id !== item.id));
-                } catch (e) {
-                  console.error('Błąd usuwania:', e);
-                }
+                // try {
+                //   await deletePlan(item.id);
+                //   setPlans(prev => prev.filter(p => p.id !== item.id));
+                // } catch (e) {
+                //   console.error('Błąd usuwania:', e);
+                // }
               }
             }
           ]

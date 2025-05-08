@@ -1,15 +1,15 @@
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  View,
+  Alert,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  Alert,
+  View,
 } from 'react-native';
-import { useRouter } from 'expo-router';
-import { savePlanForUser } from '../lib/planService';
+// import { savePlanForUser } from '../lib/planService';
 
 const daysOfWeek = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Ndz'];
 
@@ -51,14 +51,14 @@ export default function CreatePlan() {
       }
     }
   
-    try {
-      await savePlanForUser(planName, selectedDays, exercises);
-      Alert.alert('Plan zapisany!');
-      router.replace('/(tabs)/workouts');
-    } catch (error: any) {
-      console.error(error);
-      Alert.alert('Błąd zapisu planu.', error.message);
-    }
+    // try {
+    //   await savePlanForUser(planName, selectedDays, exercises);
+    //   Alert.alert('Plan zapisany!');
+    //   router.replace('/(tabs)/workouts');
+    // } catch (error: any) {
+    //   console.error(error);
+    //   Alert.alert('Błąd zapisu planu.', error.message);
+    // }
   };
 
   return (

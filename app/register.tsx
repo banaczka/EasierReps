@@ -3,7 +3,7 @@ import { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Alert
 } from 'react-native';
-import { registerUser } from '../lib/auth';
+// import { registerUser } from '../lib/auth';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -18,12 +18,12 @@ export default function RegisterScreen() {
       return;
     }
 
-    try {
-      await registerUser(email, password, username);
-      router.replace('/');
-    } catch (error: any) {
-      Alert.alert('Błąd rejestracji', error.message);
-    }
+    // try {
+    //   await registerUser(email, password, username);
+    //   router.replace('/');
+    // } catch (error: any) {
+    //   Alert.alert('Błąd rejestracji', error.message);
+    // }
   };
 
   return (

@@ -1,22 +1,22 @@
 import { useRouter } from 'expo-router';
 import { View, Text, Button, StyleSheet } from 'react-native';
-import { auth } from '../../lib/firebase';
-import { logoutUser } from '../../lib/auth';
+// import { auth } from '../../lib/firebase';
+// import { logoutUser } from '../../lib/auth';
 
 export default function ProfileScreen() {
   const router = useRouter();
 
-  const handleLogout = async () => {
-    await logoutUser();
-    router.replace('/');
-  };
+  // const handleLogout = async () => {
+  //   await logoutUser();
+  //   router.replace('/');
+  // };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
-        Zalogowany jako: {auth.currentUser?.displayName ?? auth.currentUser?.email ?? 'Nieznany użytkownik'}
+        {/* Zalogowany jako: {auth.currentUser?.displayName ?? auth.currentUser?.email ?? 'Nieznany użytkownik'} */}
       </Text>
-      <Button title="Wyloguj się" onPress={handleLogout} />
+      <Button title="Wyloguj się"/>
     </View>
   );
 }
