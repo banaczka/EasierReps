@@ -1,7 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 // import { loginUser } from '../lib/auth';
 // import { isUserLoggedIn } from '../lib/auth';
 
@@ -66,8 +65,8 @@ const handleLogin = () => {
         />
         {error ? <Text>{error}</Text> : null}
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText} onPress={handleLogin}>Zaloguj się</Text>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Zaloguj się</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.button, styles.button]} onPress={() => router.push('/register')}>
           <Text style={styles.buttonText}>Zarejestruj się</Text>

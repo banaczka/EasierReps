@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
 // import { auth } from '../../lib/firebase';
 // import { logoutUser } from '../../lib/auth';
 

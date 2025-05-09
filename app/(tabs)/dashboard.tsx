@@ -1,17 +1,30 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-// import { auth } from '../../lib/firebase';
+import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
+import { Alert, Button, StyleSheet, Text, View } from 'react-native';
+import { db } from '../../lib/firebase';
 
 export default function DashboardScreen() {
-  // const username = auth.currentUser?.displayName ?? auth.currentUser?.email ?? 'Użytkowniku';
-
+  
+  const testFirebaseConnection = async () => {
+    try {
+      const docRef = doc(collection(db, "testCollection"), "testDoc");
+      await setDoc(docRef, { message: "Hello from Firebase!" });
+  
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        Alert.alert("Sukces", `Dane: ${JSON.stringify(docSnap.data())}`);
+      } else {
+        Alert.alert("Brak danych", "Dokument nie istnieje.");
+      }
+    } catch (error) {
+      Alert.alert("Błąd", error instanceof Error ? error.message : String(error));
+    }
+  };
+  
+  
   return (
     <View style={styles.container}>
-      <Text style={styles.greeting}>Witaj!</Text>
-      <Text style={styles.subtitle}>Gotowy na trening?</Text>
-
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Rozpocznij trening</Text>
-      </TouchableOpacity>
+      <Text style={styles.title}>Dashboard</Text>
+      <Button title="Test Firebase" onPress={testFirebaseConnection} />
     </View>
   );
 }
@@ -19,31 +32,12 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
-    padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#121212',
   },
-  greeting: {
-    fontSize: 28,
-    fontWeight: '700',
+  title: {
+    fontSize: 24,
     color: '#fff',
-    marginBottom: 12,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#ccc',
-    marginBottom: 24,
-  },
-  button: {
-    backgroundColor: '#10b981',
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 12,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });
