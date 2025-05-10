@@ -63,3 +63,49 @@ export async function deletePlan(planId: string) {
     throw error;
   }
 }
+
+export async function saveWorkoutSession(planId: string, exercises: any[]) {
+  try {
+    const user = getAuth().currentUser;
+    if (!user) throw new Error("Użytkownik niezalogowany!");
+
+    const workoutSession = {
+      userId: user.uid,
+      planId,
+      date: Timestamp.now(),
+      exercises,
+    };
+
+    const docRef = await addDoc(collection(db, "workoutSessions"), workoutSession);
+    console.log("✅ Sesja treningowa zapisana z ID: ", docRef.id);
+    return docRef.id;
+  } catch (error) {
+    console.error("❌ Błąd zapisu sesji treningowej: ", error);
+    throw error;
+  }
+}
+
+export async function getUserWorkoutSessions() {
+  const user = getAuth().currentUser;
+  if (!user) throw new Error("Brak zalogowanego użytkownika");
+
+  const sessionsSnapshot = await getDocs(collection(db, "workoutSessions"));
+  const sessions = sessionsSnapshot.docs
+    .map(doc => {
+      const data = doc.data() as { userId: string, planId: string, date: any, exercises: any[] };
+      return { id: doc.id, ...data };
+    })
+    .filter(session => session.userId === user.uid);
+
+  return sessions;
+}
+
+export async function deleteWorkoutSession(sessionId: string) {
+  try {
+    await deleteDoc(doc(db, "workoutSessions", sessionId));
+    console.log("✅ Sesja treningowa usunięta:", sessionId);
+  } catch (error) {
+    console.error("❌ Błąd usuwania sesji treningowej:", error);
+    throw error;
+  }
+}

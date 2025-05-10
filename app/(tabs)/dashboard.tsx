@@ -1,13 +1,18 @@
+import { useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function DashboardScreen() {
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
       <Text style={styles.greeting}>Witaj!</Text>
       <Text style={styles.subtitle}>Gotowy na trening?</Text>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => router.push('../select-workout')}
+      >
         <Text style={styles.buttonText}>Rozpocznij trening</Text>
       </TouchableOpacity>
     </View>
