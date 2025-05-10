@@ -1,8 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-// import { auth } from '../../lib/firebase';
 
 export default function DashboardScreen() {
-  // const username = auth.currentUser?.displayName ?? auth.currentUser?.email ?? 'Użytkowniku';
 
   return (
     <View style={styles.container}>

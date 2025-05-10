@@ -1,6 +1,7 @@
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
-import { getReactNativePersistence, initializeAuth } from "firebase/auth";
+import { getAuth, getReactNativePersistence, initializeAuth } from "firebase/auth";
+import { addDoc, collection, deleteDoc, doc, getDocs, getFirestore, Timestamp } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCkb0g8fLi9uyZjTu9ArbkVHK8b6GCp7Ko",
@@ -15,3 +16,50 @@ export const app = initializeApp(firebaseConfig);
 export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
+export const db = getFirestore(app);
+export async function savePlanToFirestore(name: string, days: string[], exercises: any[]) {
+  try {
+    const user = getAuth().currentUser;
+    if (!user) {
+      throw new Error("Użytkownik niezalogowany")
+    }
+    const plan = {
+      userId: user.uid,
+      name,
+      days,
+      createdAt: Timestamp.now(),
+      exercises
+    };
+    const docRef = await addDoc(collection(db, "plans"), plan);
+    console.log("Plan zapisany z id: ", docRef.id);
+    return docRef.id;
+  } catch (error) {
+    console.error("Błąd podczas zapisu planu: ", error);
+    throw error;
+  }
+}
+
+export async function getUserPlans() {
+  const user = getAuth().currentUser;
+  if (!user) throw new Error("Brak zalogowanego użytkownika");
+
+  const plansSnapshot = await getDocs(collection(db, "plans"));
+  const plans = plansSnapshot.docs
+    .map(doc => {
+      const data = doc.data() as {userId: string, name: string, days: string[], exercises: any[], createdAt: any};
+      return { id: doc.id, ...data};
+    })
+    .filter(plan => plan.userId === user.uid);
+
+  return plans;
+}
+
+export async function deletePlan(planId: string) {
+  try {
+    await deleteDoc(doc(db, "plans", planId));
+    console.log("✅ Plan usunięty:", planId);
+  } catch (error) {
+    console.error("❌ Błąd usuwania planu:", error);
+    throw error;
+  }
+}

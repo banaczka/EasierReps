@@ -1,135 +1,143 @@
+import { deletePlan, getUserPlans } from '@/lib/firebase';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-// import { getUserPlans, deletePlan } from '../../lib/planService';
 
 export default function WorkoutsScreen() {
   const router = useRouter();
   const [plans, setPlans] = useState<any[]>([]);
 
+  // Załaduj plany użytkownika
+  const loadPlans = async () => {
+    try {
+      const userPlans = await getUserPlans();
+      setPlans(userPlans);
+    } catch (error) {
+      console.error('Błąd ładowania planów:', error);
+      Alert.alert('Błąd', 'Nie udało się załadować planów.');
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
-      const loadPlans = async () => {
-        // try {
-        //   const results = await getUserPlans();
-        //   setPlans(results);
-        // } catch (error) {
-        //   console.error('Błąd ładowania planów:', error);
-        // }
-      };
-  
       loadPlans();
     }, [])
   );
+
+  // Usuń plan treningowy
+  const handleDeletePlan = async (planId: string) => {
+    Alert.alert(
+      'Usuń plan',
+      'Czy na pewno chcesz usunąć ten plan?',
+      [
+        { text: 'Anuluj', style: 'cancel' },
+        {
+          text: 'Usuń',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deletePlan(planId);
+              loadPlans();
+            } catch (error) {
+              Alert.alert('Błąd', 'Nie udało się usunąć planu.');
+            }
+          }
+        }
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Twoje plany treningowe</Text>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push('/new-plan')}
-      >
+      <TouchableOpacity style={styles.button} onPress={() => router.push('/new-plan')}>
         <Text style={styles.buttonText}>Dodaj nowy plan</Text>
       </TouchableOpacity>
 
       {plans.length === 0 ? (
-        <Text style={styles.noPlans}>Brak planów treningowych.</Text>
+        <Text style={styles.noPlans}>Brak zapisanych planów.</Text>
       ) : (
         <FlatList
           data={plans}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={styles.planItem}>
               <Text style={styles.planName}>{item.name}</Text>
-              <Text style={styles.planDays}>
-                {Array.isArray(item.days) ? item.days.join(', ') : ''}
-              </Text>
+              <Text style={styles.planDays}>{item.days.join(', ')}</Text>
+              <FlatList
+                data={item.exercises}
+                keyExtractor={(_, index) => index.toString()}
+                renderItem={({ item }) => (
+                  <Text style={styles.exercise}>{item.name} - {item.sets}x ({item.repsRange})</Text>
+                )}
+              />
               <TouchableOpacity
-      style={styles.deleteButton}
-      onPress={async () => {
-        Alert.alert(
-          'Usuń plan',
-          `Czy na pewno chcesz usunąć plan "${item.name}"?`,
-          [
-            { text: 'Anuluj', style: 'cancel' },
-            {
-              text: 'Usuń',
-              style: 'destructive',
-              onPress: async () => {
-                // try {
-                //   await deletePlan(item.id);
-                //   setPlans(prev => prev.filter(p => p.id !== item.id));
-                // } catch (e) {
-                //   console.error('Błąd usuwania:', e);
-                // }
-              }
-            }
-          ]
-        );
-      }}
-    >
-      <Text style={styles.deleteButtonText}>Usuń</Text>
-    </TouchableOpacity>
+                style={styles.deleteButton}
+                onPress={() => handleDeletePlan(item.id)}
+              >
+                <Text style={styles.deleteButtonText}>Usuń</Text>
+              </TouchableOpacity>
             </View>
           )}
         />
       )}
-      
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-container: {
+  container: {
     flex: 1,
     backgroundColor: '#121212',
     padding: 24,
   },
-      
   title: {
     fontSize: 22,
     fontWeight: '600',
     color: '#fff',
-    marginBottom: 24,
+    marginBottom: 16,
   },
   button: {
     backgroundColor: '#10b981',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    marginBottom: 24,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 16,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
   },
   noPlans: {
     color: '#ccc',
+    textAlign: 'center',
     marginTop: 20,
   },
   planItem: {
     backgroundColor: '#1e1e1e',
     padding: 16,
     borderRadius: 10,
-    marginVertical: 8,
+    marginBottom: 12,
   },
   planName: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
     color: '#fff',
+    marginBottom: 4,
   },
   planDays: {
     color: '#aaa',
-    marginTop: 4,
+  },
+  exercise: {
+    color: '#fff',
+    marginTop: 2,
   },
   deleteButton: {
+    backgroundColor: '#d9534f',
+    padding: 8,
+    borderRadius: 6,
     marginTop: 8,
-    backgroundColor: 'tomato',
-    paddingVertical: 8,
-    borderRadius: 8,
     alignItems: 'center',
   },
   deleteButtonText: {
