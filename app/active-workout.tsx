@@ -1,6 +1,7 @@
+import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, BackHandler, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { getUserPlans, saveWorkoutSession } from '../lib/firebase';
 
 export default function ActiveWorkoutScreen() {
@@ -10,10 +11,10 @@ export default function ActiveWorkoutScreen() {
   const [currentExercise, setCurrentExercise] = useState(0);
   const [currentSet, setCurrentSet] = useState(1);
   const [reps, setReps] = useState('');
-  const [weight, setWeight] = useState('0');
+  const [weight, setWeight] = useState('');
   const [sessionData, setSessionData] = useState<any[]>([]);
   const [isResting, setIsResting] = useState(false);
-  const [restTime, setRestTime] = useState('60'); // Domyślny czas odpoczynku 60 sekund
+  const [restTime, setRestTime] = useState('');
   const [countdown, setCountdown] = useState<number | null>(null);
 
   useEffect(() => {
@@ -31,7 +32,25 @@ export default function ActiveWorkoutScreen() {
     loadPlan();
   }, [planId]);
 
-  // Rozpocznij odpoczynek
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert(
+          'Ostrzeżenie',
+          'Opuszczenie tego ekranu spowoduje utratę treningu. Czy na pewno chcesz zakończyć?',
+          [
+            { text: 'Nie', style: 'cancel' },
+            { text: 'Tak', onPress: () => router.replace('/(tabs)/dashboard') },
+          ]
+        );
+        return true;
+      };
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => backHandler.remove();
+    }, [])
+  );
+
   const startRest = () => {
     const restSeconds = parseInt(restTime);
     if (isNaN(restSeconds) || restSeconds <= 0) {
@@ -42,19 +61,15 @@ export default function ActiveWorkoutScreen() {
     setIsResting(true);
   };
 
-  // Dodaj minutę do licznika
   const addMinute = () => {
     setCountdown((prev) => (prev !== null ? prev + 60 : 60));
   };
 
-  // Przerwij odpoczynek
   const endRest = () => {
     setIsResting(false);
     setCountdown(null);
-    nextSetOrExercise();
   };
 
-  // Timer odpoczynku
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
     if (countdown !== null && countdown > 0) {
@@ -67,7 +82,6 @@ export default function ActiveWorkoutScreen() {
     return () => clearTimeout(timer);
   }, [countdown]);
 
-  // Przejście do następnej serii lub ćwiczenia
   const nextSetOrExercise = () => {
     if (currentSet >= exercises[currentExercise].sets) {
       if (currentExercise >= exercises.length - 1) {
@@ -81,7 +95,6 @@ export default function ActiveWorkoutScreen() {
     }
   };
 
-  // Zapisz dane serii i rozpocznij odpoczynek
   const handleFinishSet = () => {
     if (!reps || parseInt(reps) <= 0) {
       Alert.alert('Błąd', 'Wprowadź liczbę powtórzeń większą od zera');
@@ -100,11 +113,23 @@ export default function ActiveWorkoutScreen() {
 
     setSessionData(updatedSession);
     setReps('');
-    setWeight('0');
-    startRest(); // Zamiast ręcznego odpoczynku, automatycznie rozpoczyna
+    setWeight('');
+
+    const isLastSet = currentSet >= exercises[currentExercise].sets;
+    const isLastExercise = currentExercise >= exercises.length - 1;
+
+    if (isLastSet && isLastExercise) {
+      saveSession(updatedSession);
+    } else if (isLastSet) {
+      setCurrentExercise(currentExercise + 1);
+      startRest();
+      setCurrentSet(1);
+    } else {
+      setCurrentSet(currentSet + 1);
+      startRest();
+    }
   };
 
-  // Zapisz sesję po zakończeniu
   const saveSession = async (data: any[]) => {
     try {
       await saveWorkoutSession(planId as string, data);
@@ -115,16 +140,25 @@ export default function ActiveWorkoutScreen() {
     }
   };
 
+  const handleExit = () => {
+    Alert.alert(
+      'Ostrzeżenie',
+      'Opuszczenie tego ekranu spowoduje utratę treningu. Czy na pewno chcesz zakończyć?',
+      [
+        { text: 'Nie', style: 'cancel' },
+        { text: 'Tak', onPress: () => router.replace('/(tabs)/dashboard') },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       {exercises.length > 0 && currentExercise < exercises.length && (
         <>
-          <Text style={styles.exerciseName}>
-            {exercises[currentExercise].name} - Seria {currentSet} z {exercises[currentExercise].sets}
-          </Text>
-
           {!isResting ? (
             <>
+              <Text style={styles.exerciseName}>{exercises[currentExercise].name} ({currentSet} / {exercises[currentExercise].sets})
+              </Text>
               <TextInput
                 style={styles.input}
                 placeholder="Powtórzenia"
@@ -150,11 +184,13 @@ export default function ActiveWorkoutScreen() {
                 placeholderTextColor="#aaa"
               />
               <TouchableOpacity style={styles.button} onPress={handleFinishSet}>
-                <Text style={styles.buttonText}>Zakończ serię</Text>
+                <Text style={styles.buttonText}>{currentSet >= exercises[currentExercise]?.sets && currentExercise >= exercises.length - 1 ? 'Zakończ trening' : 'Zakończ serie'}</Text>
               </TouchableOpacity>
             </>
           ) : (
             <>
+              <Text style={styles.exerciseName}>Następna seria: {exercises[currentExercise].name} ({currentSet} / {exercises[currentExercise].sets})
+              </Text>
               <Text style={styles.timerText}>Odpoczynek: {countdown} s</Text>
               <View style={styles.buttonGroup}>
                 <TouchableOpacity style={styles.button} onPress={addMinute}>
@@ -168,16 +204,53 @@ export default function ActiveWorkoutScreen() {
           )}
         </>
       )}
+      <TouchableOpacity style={styles.button} onPress={handleExit}>
+      <Text style={styles.buttonText}>Zakończ trening</Text>
+    </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121212', padding: 24, justifyContent: 'center', alignItems: 'center' },
-  exerciseName: { fontSize: 22, color: '#fff', marginBottom: 12 },
-  input: { backgroundColor: '#333', color: '#fff', padding: 12, marginVertical: 8, borderRadius: 8, width: '80%' },
-  button: { backgroundColor: '#10b981', padding: 14, margin: 8, borderRadius: 8, width: '60%', alignItems: 'center' },
-  buttonText: { color: '#fff', fontSize: 18 },
-  timerText: { color: '#fff', fontSize: 22, marginVertical: 12 },
-  buttonGroup: { flexDirection: 'row', justifyContent: 'center' },
+  container: {
+    flex: 1, 
+    backgroundColor: '#121212', 
+    padding: 24, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  exerciseName: { 
+    fontSize: 22, 
+    color: '#fff', 
+    marginBottom: 12 
+  },
+  input: { 
+    backgroundColor: '#333', 
+    color: '#fff', 
+    padding: 12, 
+    marginVertical: 8, 
+    borderRadius: 8, 
+    width: '80%' 
+  },
+  button: { 
+    backgroundColor: '#10b981', 
+    padding: 14, 
+    margin: 8, 
+    borderRadius: 8, 
+    width: '60%', 
+    alignItems: 'center' 
+  },
+  buttonText: { 
+    color: '#fff', 
+    fontSize: 18 
+  },
+  timerText: { 
+    color: '#fff', 
+    fontSize: 22, 
+    marginVertical: 12 
+  },
+  buttonGroup: { 
+    flexDirection: 'row', 
+    justifyContent: 'center' 
+  },
 });

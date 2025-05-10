@@ -57,9 +57,9 @@ export async function getUserPlans() {
 export async function deletePlan(planId: string) {
   try {
     await deleteDoc(doc(db, "plans", planId));
-    console.log("✅ Plan usunięty:", planId);
+    console.log("Plan usunięty:", planId);
   } catch (error) {
-    console.error("❌ Błąd usuwania planu:", error);
+    console.error("Błąd usuwania planu:", error);
     throw error;
   }
 }
@@ -77,10 +77,10 @@ export async function saveWorkoutSession(planId: string, exercises: any[]) {
     };
 
     const docRef = await addDoc(collection(db, "workoutSessions"), workoutSession);
-    console.log("✅ Sesja treningowa zapisana z ID: ", docRef.id);
+    console.log("Sesja treningowa zapisana z ID: ", docRef.id);
     return docRef.id;
   } catch (error) {
-    console.error("❌ Błąd zapisu sesji treningowej: ", error);
+    console.error("Błąd zapisu sesji treningowej: ", error);
     throw error;
   }
 }
@@ -103,9 +103,9 @@ export async function getUserWorkoutSessions() {
 export async function deleteWorkoutSession(sessionId: string) {
   try {
     await deleteDoc(doc(db, "workoutSessions", sessionId));
-    console.log("✅ Sesja treningowa usunięta:", sessionId);
+    console.log("Sesja treningowa usunięta:", sessionId);
   } catch (error) {
-    console.error("❌ Błąd usuwania sesji treningowej:", error);
+    console.error("Błąd usuwania sesji treningowej:", error);
     throw error;
   }
 }
