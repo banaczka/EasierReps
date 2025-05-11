@@ -14,7 +14,6 @@ const index = () => {
       const user = await signInWithEmailAndPassword(auth, email, password)
       if (user) router.replace('/(tabs)/dashboard')
     } catch (error: any) {
-      console.log(error)
       alert('Sign in failed: ' + error.message);
     }
   }

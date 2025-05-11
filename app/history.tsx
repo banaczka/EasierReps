@@ -40,7 +40,6 @@ export default function HistoryScreen() {
             try {
               await deleteWorkoutSession(sessionId);
               setWorkoutHistory((prev) => prev.filter((item) => item.id !== sessionId));
-              console.log('Trening usunięty:', sessionId);
             } catch (error) {
               console.error('Błąd usuwania treningu:', error);
               Alert.alert('Błąd', 'Nie udało się usunąć treningu.')

@@ -31,7 +31,6 @@ export async function savePlanToFirestore(name: string, days: string[], exercise
       exercises
     };
     const docRef = await addDoc(collection(db, "plans"), plan);
-    console.log("Plan zapisany z id: ", docRef.id);
     return docRef.id;
   } catch (error) {
     console.error("Błąd podczas zapisu planu: ", error);
@@ -57,7 +56,6 @@ export async function getUserPlans() {
 export async function deletePlan(planId: string) {
   try {
     await deleteDoc(doc(db, "plans", planId));
-    console.log("Plan usunięty:", planId);
   } catch (error) {
     console.error("Błąd usuwania planu:", error);
     throw error;
@@ -83,7 +81,6 @@ export async function saveWorkoutSession(planId: string, exercises: any[]) {
     };
 
     const docRef = await addDoc(collection(db, "workoutSessions"), workoutSession);
-    console.log("Sesja treningowa zapisana z ID: ", docRef.id);
     return docRef.id;
   } catch (error) {
     console.error("Błąd zapisu sesji treningowej: ", error);
@@ -109,7 +106,6 @@ export async function getUserWorkoutSessions() {
 export async function deleteWorkoutSession(sessionId: string) {
   try {
     await deleteDoc(doc(db, "workoutSessions", sessionId));
-    console.log("Sesja treningowa usunięta:", sessionId);
   } catch (error) {
     console.error("Błąd usuwania sesji treningowej:", error);
     throw error;
@@ -128,8 +124,6 @@ export async function getWorkoutHistory() {
     );
     const querySnapshot = await getDocs(q);
     const history = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-    console.log("Historia treningów pobrana:", history);
     return history;
   } catch (error) {
     console.error("Błąd pobierania historii treningów:", error);
@@ -141,16 +135,13 @@ export async function saveMealToFirestore(name: string, calories: number) {
   try {
     const user = getAuth().currentUser;
     if (!user) throw new Error("Użytkownik niezalogowany!");
-
     const meal = {
       userId: user.uid,
       name,
       calories,
       date: Timestamp.now(),
     };
-
     await addDoc(collection(db, "meals"), meal);
-    console.log("Posiłek zapisany:", name);
   } catch (error) {
     console.error("Błąd zapisu posiłku:", error);
     throw error;
