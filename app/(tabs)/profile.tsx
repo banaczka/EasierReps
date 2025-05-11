@@ -26,6 +26,9 @@ export default function ProfileScreen() {
       <TouchableOpacity style={styles.historyButton} onPress={() => router.push('/history')}>
         <Text style={styles.historyButtonText}>Historia treningów</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.caloriesButton} onPress={() => router.push('/calories')}>
+        <Text style={styles.caloriesText}>Licznik Kalorii</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={styles.logoutButton} onPress={() => auth.signOut()}>
         <Text style={styles.logoutText}>Wyloguj się</Text>
       </TouchableOpacity>
@@ -67,5 +70,15 @@ const styles = StyleSheet.create({
     color: '#fff', 
     fontSize: 18 
   },
+  caloriesButton: {
+    backgroundColor: '#10b981', 
+    padding: 16, 
+    margin: 8, 
+    borderRadius: 8
+  },
+  caloriesText: {
+    color: '#fff', 
+    fontSize: 18
+  }
 });
 

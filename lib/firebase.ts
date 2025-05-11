@@ -136,3 +136,49 @@ export async function getWorkoutHistory() {
     throw error;
   }
 }
+
+export async function saveMealToFirestore(name: string, calories: number) {
+  try {
+    const user = getAuth().currentUser;
+    if (!user) throw new Error("Użytkownik niezalogowany!");
+
+    const meal = {
+      userId: user.uid,
+      name,
+      calories,
+      date: Timestamp.now(),
+    };
+
+    await addDoc(collection(db, "meals"), meal);
+    console.log("Posiłek zapisany:", name);
+  } catch (error) {
+    console.error("Błąd zapisu posiłku:", error);
+    throw error;
+  }
+}
+
+export async function getTodayMeals() {
+  try {
+    const user = getAuth().currentUser;
+    if (!user) throw new Error("Brak zalogowanego użytkownika");
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const q = query(
+      collection(db, "meals"),
+      where("userId", "==", user.uid),
+      where("date", ">=", Timestamp.fromDate(startOfDay))
+    );
+
+    const querySnapshot = await getDocs(q);
+    const meals = querySnapshot.docs.map((doc) => {
+      const data = doc.data() as { name: string; calories: number; date: any };
+      return { id: doc.id, ...data };
+    });
+    return meals;
+  } catch (error) {
+    console.error("Błąd pobierania posiłków:", error);
+    throw error;
+  }
+}
