@@ -1,7 +1,7 @@
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
 import { getAuth, getReactNativePersistence, initializeAuth } from "firebase/auth";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, Timestamp, where, } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, orderBy, query, Timestamp, where, } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCkb0g8fLi9uyZjTu9ArbkVHK8b6GCp7Ko",
@@ -121,7 +121,11 @@ export async function getWorkoutHistory() {
     const user = getAuth().currentUser;
     if (!user) throw new Error("Brak zalogowanego użytkownika");
 
-    const q = query(collection(db, "workoutSessions"), where("userId", "==", user.uid));
+    const q = query(
+      collection(db, "workoutSessions"),
+      where("userId", "==", user.uid),
+      orderBy("date", "desc")
+    );
     const querySnapshot = await getDocs(q);
     const history = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 

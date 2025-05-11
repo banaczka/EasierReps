@@ -26,6 +26,13 @@ export default function HistoryScreen() {
     return date || 'Brak daty';
   };
 
+  const formatSet = (set: any) => {
+    if (set.weight > 0) {
+      return `${set.reps} powtórzeń, obciążenie: ${set.weight} kg`;
+    }
+    return `${set.reps} powtórzeń`;
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Historia treningów</Text>
@@ -37,12 +44,17 @@ export default function HistoryScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.historyItem}>
-              <Text style={styles.historyTitle}>{item.name || 'Trening bez nazwy'}</Text>
+              <Text style={styles.historyTitle}>{item.name || 'Nieznany trening'}</Text>
               <Text style={styles.historyDate}>{formatDate(item.date)}</Text>
               {item.exercises.map((exercise: any, index: number) => (
-                <Text key={index} style={styles.exercise}>
-                  {exercise.name} - {exercise.sets.length} serii
-                </Text>
+                <View key={index} style={styles.exerciseContainer}>
+                  <Text style={styles.exerciseName}>{exercise.name}</Text>
+                  {exercise.sets.map((set: any, setIndex: number) => (
+                    <Text key={setIndex} style={styles.exerciseDetails}>
+                      Seria {setIndex + 1}: {formatSet(set)}
+                    </Text>
+                  ))}
+                </View>
               ))}
             </TouchableOpacity>
           )}
@@ -59,5 +71,7 @@ const styles = StyleSheet.create({
   historyItem: { backgroundColor: '#1e1e1e', padding: 16, marginVertical: 8, borderRadius: 8 },
   historyTitle: { color: '#fff', fontSize: 20, marginBottom: 4 },
   historyDate: { color: '#888', fontSize: 16 },
-  exercise: { color: '#ccc', fontSize: 16, marginLeft: 8 },
+  exerciseContainer: { marginTop: 8 },
+  exerciseName: { color: '#10b981', fontSize: 18, marginBottom: 4 },
+  exerciseDetails: { color: '#ccc', fontSize: 16, marginLeft: 16 },
 });
