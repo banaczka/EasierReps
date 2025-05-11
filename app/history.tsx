@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { getWorkoutHistory } from '../lib/firebase';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { deleteWorkoutSession, getWorkoutHistory } from '../lib/firebase';
 
 export default function HistoryScreen() {
   const router = useRouter();
@@ -26,6 +26,30 @@ export default function HistoryScreen() {
     return date || 'Brak daty';
   };
 
+  const handleDelete = async (sessionId: string) => {
+    Alert.alert(
+      'Usuń trening',
+      'Czy na pewno chcesz usunąć ten trening?',
+      [
+        { text: 'Anuluj', style: 'cancel' },
+        {
+          text: 'Usuń',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteWorkoutSession(sessionId);
+              setWorkoutHistory((prev) => prev.filter((item) => item.id !== sessionId));
+              console.log('Trening usunięty:', sessionId);
+            } catch (error) {
+              console.error('Błąd usuwania treningu:', error);
+              Alert.alert('Błąd', 'Nie udało się usunąć treningu.')
+            }
+          }
+        }
+      ]
+    )
+  }
+
   const formatSet = (set: any) => {
     if (set.weight > 0) {
       return `${set.reps} powtórzeń, obciążenie: ${set.weight} kg`;
@@ -45,6 +69,12 @@ export default function HistoryScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.historyItem}>
               <Text style={styles.historyTitle}>{item.name || 'Nieznany trening'}</Text>
+              <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => handleDelete(item.id)}
+                >
+                  <Text style={styles.deleteButtonText}>Usuń</Text>
+                </TouchableOpacity>
               <Text style={styles.historyDate}>{formatDate(item.date)}</Text>
               {item.exercises.map((exercise: any, index: number) => (
                 <View key={index} style={styles.exerciseContainer}>
@@ -74,4 +104,6 @@ const styles = StyleSheet.create({
   exerciseContainer: { marginTop: 8 },
   exerciseName: { color: '#10b981', fontSize: 18, marginBottom: 4 },
   exerciseDetails: { color: '#ccc', fontSize: 16, marginLeft: 16 },
+  deleteButton: { backgroundColor: '#e74c3c', padding: 8, borderRadius: 8 },
+  deleteButtonText: { color: '#fff', fontSize: 14 },
 });

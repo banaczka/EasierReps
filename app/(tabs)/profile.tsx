@@ -6,12 +6,13 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(getAuth(), (user) => {
-      if (user) {
-        setUserEmail(user.email);
+      if (user && user.email) {
+        const extractedUsername = user.email.split('@')[0];
+        setUsername(extractedUsername);
       } else {
         router.replace('/');
       }
@@ -21,7 +22,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Profil Użytkownika</Text>
+      <Text style={styles.title}>Profil Użytkownika {username}</Text>
       <TouchableOpacity style={styles.historyButton} onPress={() => router.push('/history')}>
         <Text style={styles.historyButtonText}>Historia treningów</Text>
       </TouchableOpacity>
