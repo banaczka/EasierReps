@@ -1,7 +1,7 @@
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'expo-router';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
@@ -21,9 +21,12 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Hello, {userEmail}</Text>
-      <TouchableOpacity style={styles.button} onPress={() => auth.signOut()}>
-        <Text style={styles.buttonText}>Sign out</Text>
+      <Text style={styles.title}>Profil Użytkownika</Text>
+      <TouchableOpacity style={styles.historyButton} onPress={() => router.push('/history')}>
+        <Text style={styles.historyButtonText}>Historia treningów</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.logoutButton} onPress={() => auth.signOut()}>
+        <Text style={styles.logoutText}>Wyloguj się</Text>
       </TouchableOpacity>
     </View>
   );
@@ -35,25 +38,33 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: '#121212',
     justifyContent: 'center',
-    alignItems: 'center',  // Wyśrodkowanie w poziomie
+    alignItems: 'center',
   },
   title: {
-    fontSize: 28,       // Większy nagłówek
-    fontWeight: 'bold', // Grubsza czcionka
+    fontSize: 28,
+    fontWeight: 'bold',
     marginBottom: 20,
     color: '#fff',
   },
-  button: {
-    backgroundColor: '#6200ee',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    marginTop: 20,
+  historyButton: { 
+    backgroundColor: '#10b981', 
+    padding: 16, 
+    margin: 8, 
+    borderRadius: 8 
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+  historyButtonText: { 
+    color: '#fff', 
+    fontSize: 18 
+  },
+  logoutButton: { 
+    backgroundColor: '#6200ee', 
+    padding: 16, 
+    margin: 8, 
+    borderRadius: 8 
+  },
+  logoutText: { 
+    color: '#fff', 
+    fontSize: 18 
   },
 });
 

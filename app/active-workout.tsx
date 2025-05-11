@@ -204,8 +204,8 @@ export default function ActiveWorkoutScreen() {
           )}
         </>
       )}
-      <TouchableOpacity style={styles.button} onPress={handleExit}>
-      <Text style={styles.buttonText}>Zakończ trening</Text>
+      <TouchableOpacity style={styles.stopButton} onPress={handleExit}>
+      <Text style={styles.buttonText}>Przerwij trening</Text>
     </TouchableOpacity>
     </View>
   );
@@ -253,4 +253,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     justifyContent: 'center' 
   },
+  stopButton: {
+    backgroundColor: '#d9534f',
+    padding: 14, 
+    margin: 8, 
+    borderRadius: 8, 
+    width: '60%', 
+    alignItems: 'center' 
+  }
 });

@@ -1,7 +1,7 @@
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
 import { getAuth, getReactNativePersistence, initializeAuth } from "firebase/auth";
-import { addDoc, collection, deleteDoc, doc, getDocs, getFirestore, Timestamp } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, Timestamp, where, } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCkb0g8fLi9uyZjTu9ArbkVHK8b6GCp7Ko",
@@ -69,9 +69,15 @@ export async function saveWorkoutSession(planId: string, exercises: any[]) {
     const user = getAuth().currentUser;
     if (!user) throw new Error("Użytkownik niezalogowany!");
 
+    const planRef = doc(db, "plans", planId);
+    const planSnap = await getDoc(planRef);
+
+    const planName = planSnap.exists() ? planSnap.data().name : "Nieznany plan";
+
     const workoutSession = {
       userId: user.uid,
       planId,
+      name: planName,
       date: Timestamp.now(),
       exercises,
     };
@@ -106,6 +112,23 @@ export async function deleteWorkoutSession(sessionId: string) {
     console.log("Sesja treningowa usunięta:", sessionId);
   } catch (error) {
     console.error("Błąd usuwania sesji treningowej:", error);
+    throw error;
+  }
+}
+
+export async function getWorkoutHistory() {
+  try {
+    const user = getAuth().currentUser;
+    if (!user) throw new Error("Brak zalogowanego użytkownika");
+
+    const q = query(collection(db, "workoutSessions"), where("userId", "==", user.uid));
+    const querySnapshot = await getDocs(q);
+    const history = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    console.log("Historia treningów pobrana:", history);
+    return history;
+  } catch (error) {
+    console.error("Błąd pobierania historii treningów:", error);
     throw error;
   }
 }

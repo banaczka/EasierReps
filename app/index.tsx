@@ -21,9 +21,9 @@ const index = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.text}>Login</Text>
+      <Text style={styles.text}>Logowanie</Text>
       <TextInput
-        placeholder='email'
+        placeholder='Email'
         placeholderTextColor="#aaa"
         value={email}
         onChangeText={setEmail}
@@ -31,7 +31,7 @@ const index = () => {
         keyboardType="email-address"
       />
       <TextInput
-        placeholder='password'
+        placeholder='Hasło'
         placeholderTextColor="#aaa"
         value={password}
         onChangeText={setPassword}
@@ -39,10 +39,10 @@ const index = () => {
         style={styles.input}
       />
       <TouchableOpacity style={styles.button} onPress={signIn}>
-        <Text style={styles.buttonText}>Login</Text>
+        <Text style={styles.buttonText}>Zaloguj się</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={() => router.push('/register')}>
-        <Text style={styles.buttonText}>Make Account</Text>
+        <Text style={styles.buttonText}>Stwórz konto</Text>
       </TouchableOpacity>
     </SafeAreaView>
   )
