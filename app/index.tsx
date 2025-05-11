@@ -2,7 +2,7 @@ import { auth } from '@/lib/firebase';
 import { router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const index = () => {
@@ -21,69 +21,89 @@ const index = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.text}>Logowanie</Text>
-      <TextInput
-        placeholder='Email'
-        placeholderTextColor="#aaa"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        keyboardType="email-address"
-      />
-      <TextInput
-        placeholder='Hasło'
-        placeholderTextColor="#aaa"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
-      <TouchableOpacity style={styles.button} onPress={signIn}>
-        <Text style={styles.buttonText}>Zaloguj się</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => router.push('/register')}>
-        <Text style={styles.buttonText}>Stwórz konto</Text>
-      </TouchableOpacity>
+      <View style={styles.card}>
+        <Text style={styles.title}>Logowanie</Text>
+        
+        <TextInput
+          placeholder="Email"
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          placeholderTextColor="#aaa"
+          keyboardType="email-address"
+        />
+        <TextInput
+          placeholder="Hasło"
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          placeholderTextColor="#aaa"
+        />
+
+        <TouchableOpacity style={styles.button} onPress={signIn}>
+          <Text style={styles.buttonText}>Zaloguj się</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push('/register')}>
+          <Text style={styles.link}>Nie masz konta? Zarejestruj się</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
-  )
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    padding: 24,
     backgroundColor: '#121212',
   },
-  text: {
-    fontSize: 24,
+  card: {
+    backgroundColor: '#1e1e1e',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '600',
+    marginBottom: 24,
+    textAlign: 'center',
     color: '#fff',
-    marginBottom: 20,
   },
   input: {
-    width: '80%',
     height: 50,
-    backgroundColor: '#333',
+    borderColor: '#333',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    marginBottom: 16,
     color: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 15,
+    backgroundColor: '#2c2c2c',
   },
   button: {
-    width: '80%',
-    height: 50,
     backgroundColor: '#6200ee',
-    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: 'center',
-    borderRadius: 8,
-    marginTop: 10,
+    marginBottom: 12,
   },
   buttonText: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
+  },
+  link: {
+    color: '#10b981',
+    fontSize: 16,
+    marginTop: 16,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
 });
+
 
 
 export default index;

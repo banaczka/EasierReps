@@ -3,6 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WorkoutsScreen() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function WorkoutsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Twoje plany treningowe</Text>
 
       <TouchableOpacity style={styles.button} onPress={() => router.push('/new-plan')}>
@@ -83,7 +84,7 @@ export default function WorkoutsScreen() {
           )}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

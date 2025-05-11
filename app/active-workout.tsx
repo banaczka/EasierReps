@@ -2,6 +2,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, BackHandler, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUserPlans, saveWorkoutSession } from '../lib/firebase';
 
 export default function ActiveWorkoutScreen() {
@@ -152,7 +153,7 @@ export default function ActiveWorkoutScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {exercises.length > 0 && currentExercise < exercises.length && (
         <>
           {!isResting ? (
@@ -207,7 +208,7 @@ export default function ActiveWorkoutScreen() {
       <TouchableOpacity style={styles.stopButton} onPress={handleExit}>
       <Text style={styles.buttonText}>Przerwij trening</Text>
     </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

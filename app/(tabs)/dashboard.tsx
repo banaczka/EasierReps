@@ -1,11 +1,12 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DashboardScreen() {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.greeting}>Witaj!</Text>
       <Text style={styles.subtitle}>Gotowy na trening?</Text>
 
@@ -15,7 +16,7 @@ export default function DashboardScreen() {
       >
         <Text style={styles.buttonText}>Rozpocznij trening</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import React, { useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from "react-native-safe-area-context";
 import { savePlanToFirestore } from '../lib/firebase';
 
 interface Exercise {
@@ -93,7 +94,7 @@ export default function NewPlanScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Dodaj nowy plan treningowy</Text>
 
       <TextInput
@@ -170,7 +171,7 @@ export default function NewPlanScreen() {
       <TouchableOpacity style={styles.saveButton} onPress={handleSavePlan}>
         <Text style={styles.buttonText}>Zapisz plan</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

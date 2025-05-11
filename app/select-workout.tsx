@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUserPlans } from '../lib/firebase';
 
 export default function SelectWorkoutScreen() {
@@ -22,7 +23,7 @@ export default function SelectWorkoutScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Wybierz plan treningowy</Text>
       <FlatList
         data={plans}
@@ -44,7 +45,7 @@ export default function SelectWorkoutScreen() {
           </TouchableOpacity>
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

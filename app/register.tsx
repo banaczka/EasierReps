@@ -8,6 +8,7 @@ import {
   Text, TextInput, TouchableOpacity,
   View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function RegisterScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Rejestracja</Text>
 
@@ -66,12 +67,11 @@ export default function RegisterScreen() {
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
           <Text style={styles.buttonText}>Zarejestruj się</Text>
         </TouchableOpacity>
-      </View>
-
-      <TouchableOpacity onPress={() => router.replace('/')} style={styles.link}>
+        <TouchableOpacity onPress={() => router.replace('/')} style={styles.link}>
         <Text style={styles.linkText}>Powrót do logowania</Text>
       </TouchableOpacity>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }
 

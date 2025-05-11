@@ -2,7 +2,8 @@ import { auth } from '@/lib/firebase';
 import { useRouter } from 'expo-router';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function ProfileScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Profil Użytkownika {username}</Text>
       <TouchableOpacity style={styles.historyButton} onPress={() => router.push('/history')}>
         <Text style={styles.historyButtonText}>Historia treningów</Text>
@@ -32,7 +33,7 @@ export default function ProfileScreen() {
       <TouchableOpacity style={styles.logoutButton} onPress={() => auth.signOut()}>
         <Text style={styles.logoutText}>Wyloguj się</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

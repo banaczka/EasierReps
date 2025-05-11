@@ -1,7 +1,8 @@
 import { getTodayMeals, saveMealToFirestore } from '@/lib/firebase';
 import { fetchCalories } from '@/lib/nutrition';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CaloriesScreen() {
   const [food, setFood] = useState('');
@@ -30,23 +31,29 @@ export default function CaloriesScreen() {
       Alert.alert('Błąd', 'Podaj produkt i ilość.');
       return;
     }
-
+  
     try {
       const cal = await fetchCalories(food, parseFloat(quantity));
+      if (cal === null) {
+        Alert.alert('Błąd', 'Nie znaleziono produktu w bazie danych.');
+        return;
+      }
       setCalories(cal);
       await saveMealToFirestore(food, cal);
       Alert.alert('Zapisano!', `Dodano ${food} (${cal} kcal)`);
+  
       const mealsData = await getTodayMeals();
       setMeals(mealsData);
       setTodayCalories((prev) => prev + cal);
-    } catch (error) {
-      Alert.alert('Błąd', 'Nie udało się pobrać danych o kaloriach.');
+    } catch (error: any) {
+      console.error('Błąd:', error.message);
+      Alert.alert('Błąd', 'Wystąpił problem z połączeniem.');
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Licznik Kalorii</Text>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Twoje kalorie</Text>
       <Text style={styles.subtitle}>Dzisiejsza suma: {todayCalories} kcal</Text>
       <TextInput
         style={styles.input}
@@ -75,14 +82,29 @@ export default function CaloriesScreen() {
           </Text>
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#121212' },
-    title: { fontSize: 28, color: '#fff', marginBottom: 16, textAlign: 'center' },
-    subtitle: { fontSize: 20, color: '#10b981', marginBottom: 16, textAlign: 'center' },
+    container: { 
+      flex: 1, 
+      justifyContent: 'center', 
+      padding: 24, 
+      backgroundColor: '#121212' 
+    },
+    title: { 
+      fontSize: 28, 
+      color: '#fff', 
+      marginBottom: 16, 
+      textAlign: 'center' 
+    },
+    subtitle: { 
+      fontSize: 20, 
+      color: '#10b981', 
+      marginBottom: 16, 
+      textAlign: 'center' 
+    },
     input: {
       height: 50,
       borderColor: '#333',
@@ -99,6 +121,14 @@ const styles = StyleSheet.create({
       borderRadius: 8,
       alignItems: 'center',
     },
-    buttonText: { color: '#fff', fontSize: 18 },
-    mealItem: { color: '#fff', fontSize: 18, marginTop: 8, textAlign: 'center' },
+    buttonText: { 
+      color: '#fff', 
+      fontSize: 18 
+    },
+    mealItem: { 
+      color: '#fff', 
+      fontSize: 18, 
+      marginTop: 8, 
+      textAlign: 'center' 
+    },
   });
