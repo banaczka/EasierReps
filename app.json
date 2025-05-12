@@ -10,14 +10,16 @@
     "jsEngine": "jsc",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.EasierRepsNew"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.EasierRepsNew"
     },
     "web": {
       "bundler": "metro",
@@ -26,13 +28,13 @@
     },
     "plugins": [
       "expo-router",
+      "@react-native-firebase/app",
       [
-        "expo-splash-screen",
+        "expo-build-properties",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "ios": {
+            "useFrameworks": "static"
+          }
         }
       ]
     ],
