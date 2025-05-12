@@ -10,8 +10,7 @@
     "jsEngine": "jsc",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.EasierRepsNew"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +18,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.EasierRepsNew"
+      "package": "com.banaczka.EasierRepsNew"
     },
     "web": {
       "bundler": "metro",
@@ -28,18 +27,24 @@
     },
     "plugins": [
       "expo-router",
-      "@react-native-firebase/app",
       [
-        "expo-build-properties",
+        "expo-splash-screen",
         {
-          "ios": {
-            "useFrameworks": "static"
-          }
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "826af662-4809-4ecf-b243-eb7657848894"
+      }
     }
   }
 }
