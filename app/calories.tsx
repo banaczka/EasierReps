@@ -1,7 +1,7 @@
-import { getTodayMeals, saveMealToFirestore } from '@/lib/firebase';
+import { deleteMeal, getTodayMeals, saveMealToFirestore } from '@/lib/firebase';
 import { fetchCalories } from '@/lib/nutrition';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CaloriesScreen() {
@@ -39,15 +39,30 @@ export default function CaloriesScreen() {
         return;
       }
       setCalories(cal);
-      await saveMealToFirestore(food, cal);
-      Alert.alert('Zapisano!', `Dodano ${food} (${cal} kcal)`);
-  
-      const mealsData = await getTodayMeals();
-      setMeals(mealsData);
-      setTodayCalories((prev) => prev + cal);
+      const saveResult = await saveMealToFirestore(food, cal);
+      if (saveResult !== null) {
+        Alert.alert('Zapisano!', `Dodano ${food} (${cal} kcal)`);
+        const mealsData = await getTodayMeals();
+        setMeals(mealsData);
+        setTodayCalories((prev) => prev + cal);
+      } else {
+        Alert.alert('Błąd', 'Nie udało się zapisać posiłku.');
+      }
     } catch (error: any) {
       console.error('Błąd:', error.message);
       Alert.alert('Błąd', 'Wystąpił problem z połączeniem.');
+    }
+  };
+
+  const handleDeleteMeal = async (mealId: string, mealCalories: number) => {
+    try {
+      await deleteMeal(mealId);
+      Alert.alert('Sukces', 'Posiłek został usunięty.');
+      setTodayCalories((prev) => prev - mealCalories);
+      setMeals((prev) => prev.filter(meal => meal.id !== mealId));
+    } catch (error) {
+      Alert.alert('Błąd', 'Nie udało się usunąć posiłku.');
+      console.error("Błąd usuwania posiłku:", error);
     }
   };
 
@@ -77,9 +92,12 @@ export default function CaloriesScreen() {
         data={meals}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <Text style={styles.mealItem}>
-            {item.name} - {item.calories} kcal
-          </Text>
+          <View style={styles.mealItemContainer}>
+            <Text style={styles.mealItem}>{item.name} - {item.calories} kcal</Text>
+            <TouchableOpacity onPress={() => handleDeleteMeal(item.id, item.calories)} style={styles.deleteButton}>
+              <Text style={styles.deleteButtonText}>Usuń</Text>
+            </TouchableOpacity>
+          </View>
         )}
       />
     </SafeAreaView>
@@ -130,5 +148,23 @@ const styles = StyleSheet.create({
       fontSize: 18, 
       marginTop: 8, 
       textAlign: 'center' 
+    },
+    mealItemContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 10,
+      marginVertical: 5,
+      backgroundColor: '#1e1e1e',
+      borderRadius: 8,
+    },
+    deleteButton: {
+      backgroundColor: '#ff4d4d',
+      padding: 8,
+      borderRadius: 5,
+    },
+    deleteButtonText: {
+      color: '#fff',
+      fontWeight: 'bold',
     },
   });

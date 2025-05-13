@@ -78,7 +78,11 @@ export default function NewPlanScreen() {
     }
 
     try {
-      await savePlanToFirestore(planName, selectedDays, exercises);
+      const planId = await savePlanToFirestore(planName, selectedDays, exercises);
+      if (!planId) {
+        Alert.alert('Ostrzeżenie', 'Plan o takiej nazwie już istnieje');
+        return;
+      }
       Alert.alert('Sukces', 'Plan został zapisany!');
       setPlanName('');
       setSelectedDays([]);

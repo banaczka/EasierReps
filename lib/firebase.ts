@@ -187,3 +187,13 @@ export async function getTodayMeals() {
     throw error;
   }
 }
+
+export async function deleteMeal(mealId: string) {
+  try {
+    await deleteDoc(doc(db, "meals", mealId));
+    console.log("Posiłek został usunięty.");
+  } catch (error) {
+    console.error("Błąd usuwania posiłku:", error);
+    throw error;
+  }
+}
