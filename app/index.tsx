@@ -12,7 +12,9 @@ const index = () => {
   const signIn = async () => {
     try {
       const user = await signInWithEmailAndPassword(auth, email, password)
-      if (user) router.replace('/(tabs)/dashboard')
+      if (user) {
+        router.replace('/(tabs)/dashboard');
+      }
     } catch (error: any) {
       alert('Sign in failed: ' + error.message);
     }
