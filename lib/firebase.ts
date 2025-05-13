@@ -26,6 +26,17 @@ export async function savePlanToFirestore(name: string, days: string[], exercise
     if (!user) {
       throw new Error("Użytkownik niezalogowany")
     }
+
+    const q = query(
+      collection(db, "plans"),
+      where("userId", "==", user.uid),
+      where("name", "==", name)
+    );
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      console.warn("Plan o takiej nazwie już istnieje");
+      return null;
+    }
     const plan = {
       userId: user.uid,
       name,
