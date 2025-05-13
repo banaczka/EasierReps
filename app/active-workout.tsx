@@ -1,4 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { Audio } from 'expo-av';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, BackHandler, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -17,6 +18,23 @@ export default function ActiveWorkoutScreen() {
   const [isResting, setIsResting] = useState(false);
   const [restTime, setRestTime] = useState('');
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+
+  async function playSound() {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/beep.mp3')
+      );
+      setSound(sound);
+      await sound.playAsync();
+    } catch (error) {
+      console.error("Błąd odtwarzania dźwięku:", error);
+    }
+  }
+
+  useEffect(() => {
+    return sound ? () => { sound.unloadAsync(); } : undefined;
+  }, [sound]);
 
   useEffect(() => {
     const loadPlan = async () => {
@@ -76,6 +94,7 @@ export default function ActiveWorkoutScreen() {
     if (countdown !== null && countdown > 0) {
       timer = setTimeout(() => setCountdown(countdown - 1), 1000);
     } else if (countdown === 0) {
+      playSound();
       setIsResting(false);
       setCountdown(null);
       nextSetOrExercise();
