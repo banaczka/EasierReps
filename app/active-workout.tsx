@@ -19,6 +19,7 @@ export default function ActiveWorkoutScreen() {
   const [restTime, setRestTime] = useState('');
   const [countdown, setCountdown] = useState<number | null>(null);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [hasSkipped, setHasSkipped] = useState(false);
 
   async function playSound() {
     try {
@@ -84,36 +85,23 @@ export default function ActiveWorkoutScreen() {
     setCountdown((prev) => (prev !== null ? prev + 60 : 60));
   };
 
-  const endRest = () => {
+  const skipRest = () => {
     setIsResting(false);
     setCountdown(null);
+    setHasSkipped(true);
   };
-
+  
   useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-    if (countdown !== null && countdown > 0) {
-      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    if (typeof countdown === 'number' && countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
     } else if (countdown === 0) {
       playSound();
       setIsResting(false);
       setCountdown(null);
-      nextSetOrExercise();
+      
     }
-    return () => clearTimeout(timer);
-  }, [countdown]);
-
-  const nextSetOrExercise = () => {
-    if (currentSet >= exercises[currentExercise].sets) {
-      if (currentExercise >= exercises.length - 1) {
-        saveSession(sessionData);
-        return;
-      }
-      setCurrentExercise(currentExercise + 1);
-      setCurrentSet(1);
-    } else {
-      setCurrentSet(currentSet + 1);
-    }
-  };
+  }, [countdown, hasSkipped]);
 
   const handleFinishSet = () => {
     if (!reps || parseInt(reps) <= 0) {
@@ -216,7 +204,7 @@ export default function ActiveWorkoutScreen() {
                 <TouchableOpacity style={styles.button} onPress={addMinute}>
                   <Text style={styles.buttonText}>+1 Minuta</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={endRest}>
+                <TouchableOpacity style={styles.button} onPress={skipRest}>
                   <Text style={styles.buttonText}>Zakończ odpoczynek</Text>
                 </TouchableOpacity>
               </View>
