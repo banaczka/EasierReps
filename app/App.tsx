@@ -1,29 +1,37 @@
-import { getUserNotification } from '@/lib/firebase';
+import { auth, getUserNotification } from '@/lib/firebase';
 import { scheduleNotification } from '@/lib/notification';
+import { router } from 'expo-router';
 import 'fast-text-encoding';
-import { getAuth } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect } from 'react';
 
 export default function App() {
   useEffect(() => {
-    const initializeNotification = async () => {
+    const initializeNotification = async (userId: string) => {
       try {
-        const user = getAuth().currentUser;
-        if (user) {
-          const notification = await getUserNotification(user.uid);
-          if (notification) {
-            scheduleNotification(notification.title, notification.body, notification.hour, notification.minute);
-            console.log('Powiadomienie ustawione przy starcie aplikacji.');
-          }
+        const notification = await getUserNotification(userId);
+        if (notification) {
+          scheduleNotification(notification.title, notification.body, notification.hour, notification.minute);
+          console.log('Powiadomienie ustawione przy starcie aplikacji.');
         }
       } catch (error) {
         console.error('Błąd podczas ustawiania powiadomienia przy starcie:', error);
       }
     };
-  
-    initializeNotification();
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        console.log("Zalogowany użytkownik:", currentUser.uid);
+        initializeNotification(currentUser.uid);
+        router.replace('/(tabs)/dashboard');
+      } else {
+        console.log("Nie zalogowano");
+        router.replace('/');
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
-  
 
   return null;
 }
