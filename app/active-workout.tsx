@@ -104,7 +104,7 @@ export default function ActiveWorkoutScreen() {
   }, [countdown, hasSkipped]);
 
   const handleFinishSet = () => {
-    if (!reps || parseInt(reps) <= 0) {
+    if (!reps || isNaN(parseInt(reps)) || parseInt(reps) <= 0) {
       Alert.alert('Błąd', 'Wprowadź liczbę powtórzeń większą od zera');
       return;
     }

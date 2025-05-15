@@ -30,6 +30,9 @@ export default function ProfileScreen() {
       <TouchableOpacity style={styles.caloriesButton} onPress={() => router.push('/calories')}>
         <Text style={styles.caloriesText}>Licznik Kalorii</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.caloriesButton} onPress={() => router.push('/set-reminder')}>
+        <Text style={styles.caloriesText}>Ustaw przypomnienie o suplementach</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={styles.logoutButton} onPress={() => auth.signOut()}>
         <Text style={styles.logoutText}>Wyloguj się</Text>
       </TouchableOpacity>

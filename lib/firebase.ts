@@ -197,3 +197,57 @@ export async function deleteMeal(mealId: string) {
     throw error;
   }
 }
+
+export async function saveNotification(title: string, body: string, hour: number, minute:number) {
+  try {
+    const user = getAuth().currentUser;
+    if (!user) throw new Error("Użytkownik niezalogowany!");
+    const notification = {
+      userId: user.uid,
+      title,
+      body,
+      hour,
+      minute,
+    };
+    await addDoc(collection(db, "notifications"), notification);
+    console.log("Powiadomienie zapisane:", notification);
+  } catch (error) {
+    console.error("Błąd zapisu powiadomienia:", error);
+    throw error;
+  }
+}
+
+export async function getUserNotification(userId: string) {
+  try {
+    const user = getAuth().currentUser;
+    if (!user) throw new Error("Brak zalogowanego użytkownika");
+
+    const q = query(
+      collection(db, "notifications"),
+      where("userId", "==", user.uid)
+    );
+    const querySnapshot = await getDocs(q);
+    const notifications = querySnapshot.docs.map((doc) => {
+      const data = doc.data() as { title: string; body: string; hour: number; minute: number };
+      return { id: doc.id, ...data };
+    });
+
+    return notifications.length > 0 ? notifications[0] : null;
+  } catch (error) {
+    console.error("Błąd pobierania powiadomienia:", error);
+    return null;
+  }
+}
+
+export async function deleteUserNotification(userId: string) {
+  try {
+    const q = query(collection(db, "notifications"), where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+    for (const doc of querySnapshot.docs) {
+      await deleteDoc(doc.ref);
+      console.log("Powiadomienie usunięte:", doc.id);
+    }
+  } catch (error) {
+    console.error("Błąd usuwania powiadomienia:", error);
+  }
+}

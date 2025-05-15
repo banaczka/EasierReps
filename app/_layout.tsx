@@ -67,6 +67,7 @@ export default function RootLayout() {
           <Stack.Screen name="select-workout" options={{ title: "Wybór planu" }} />
           <Stack.Screen name="calories" options={{ title: "Licznik Kalorii" }} />
           <Stack.Screen name="history" options={{ title: "Historia treningów" }} />
+          <Stack.Screen name="set-reminder" options={{ title: "Ustaw powiadomienie" }} />
           <Stack.Screen name="+not-found" />
         </Stack>
         <StatusBar style="light" />

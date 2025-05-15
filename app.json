@@ -10,7 +10,8 @@
     "jsEngine": "jsc",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.banaczka.EasierRepsNew"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +19,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.banaczka.EasierRepsNew"
+      "package": "com.banaczka.EasierRepsNew",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",

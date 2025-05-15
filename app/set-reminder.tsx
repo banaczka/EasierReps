@@ -1,0 +1,139 @@
+import { deleteUserNotification, getUserNotification, saveNotification } from '@/lib/firebase';
+import { getAuth } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const SetReminder = () => {
+  const [body, setBody] = useState('');
+  const [hour, setHour] = useState('18');
+  const [minute, setMinute] = useState('00');
+  const [existingReminder, setExistingReminder] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadReminder = async () => {
+      try {
+        const user = getAuth().currentUser;
+        if (!user) {
+          console.log('nie ma usera');
+          return;
+        }
+        const userId = user.uid;
+        const reminder = await getUserNotification(userId);
+        if (reminder) {
+          setExistingReminder(reminder.body);
+        }
+      } catch (error) {
+        console.error('Błąd podczas ładowania przypomnienia:', error);
+      }
+    };
+    loadReminder();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      const user = getAuth().currentUser;
+      if (!user) {
+        Alert.alert('Błąd', 'Nie znaleziono ID użytkownika');
+        return;
+      }
+      const userId = user.uid;
+      const existing = await getUserNotification(userId);
+      if (existing) {
+        await deleteUserNotification(userId);
+        console.log('Stare powiadomienie usunięte.');
+      }
+      const title = 'Przypomnienie o suplementach';
+      await saveNotification(title, body, parseInt(hour), parseInt(minute));
+      setExistingReminder(body);
+      Alert.alert('Sukces', 'Powiadomienie zapisane');
+    } catch (error) {
+      Alert.alert('Błąd', 'Nie udało się zapisać powiadomienia');
+      console.error(error);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Ustaw przypomnienie</Text>
+      {existingReminder && (
+        <View style={styles.currentReminder}>
+          <Text style={styles.currentReminderText}>Aktualne przypomnienie: {existingReminder}</Text>
+        </View>
+      )}
+      <TextInput
+        style={styles.input}
+        placeholder="Treść powiadomienia"
+        placeholderTextColor="#888"
+        value={body}
+        onChangeText={setBody}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Godzina (HH)"
+        placeholderTextColor="#888"
+        value={hour}
+        onChangeText={setHour}
+        keyboardType="numeric"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Minuta (MM)"
+        placeholderTextColor="#888"
+        value={minute}
+        onChangeText={setMinute}
+        keyboardType="numeric"
+      />
+      <TouchableOpacity style={styles.button} onPress={handleSave}>
+        <Text style={styles.buttonText}>Zapisz powiadomienie</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: '#121212',
+  },
+  title: {
+    fontSize: 28,
+    color: '#fff',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  currentReminder: {
+    marginBottom: 16,
+    padding: 10,
+    backgroundColor: '#1e1e1e',
+    borderRadius: 8,
+  },
+  currentReminderText: {
+    color: '#10b981',
+    fontSize: 16,
+  },
+  input: {
+    height: 50,
+    borderColor: '#333',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    color: '#fff',
+    backgroundColor: '#2c2c2c',
+  },
+  button: {
+    backgroundColor: '#3498db',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+  },
+});
+
+export default SetReminder;
