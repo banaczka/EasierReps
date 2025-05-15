@@ -1,4 +1,6 @@
 import { deleteUserNotification, getUserNotification, saveNotification } from '@/lib/firebase';
+import { cancelAllNotifications, scheduleNotification } from '@/lib/notification';
+import 'fast-text-encoding';
 import { getAuth } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -6,8 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SetReminder = () => {
   const [body, setBody] = useState('');
-  const [hour, setHour] = useState('18');
-  const [minute, setMinute] = useState('00');
+  const [hour, setHour] = useState('');
+  const [minute, setMinute] = useState('');
   const [existingReminder, setExistingReminder] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,7 +23,8 @@ const SetReminder = () => {
         const userId = user.uid;
         const reminder = await getUserNotification(userId);
         if (reminder) {
-          setExistingReminder(reminder.body);
+            setExistingReminder(`${reminder.title} - ${reminder.body} o ${reminder.hour}:${reminder.minute}`);
+          console.log('Wczytano przypomnienie:', reminder);
         }
       } catch (error) {
         console.error('Błąd podczas ładowania przypomnienia:', error);
@@ -43,13 +46,31 @@ const SetReminder = () => {
         await deleteUserNotification(userId);
         console.log('Stare powiadomienie usunięte.');
       }
+  
       const title = 'Przypomnienie o suplementach';
-      await saveNotification(title, body, parseInt(hour), parseInt(minute));
-      setExistingReminder(body);
+      const notificationHour = parseInt(hour);
+      const notificationMinute = parseInt(minute);
+  
+      await saveNotification(title, body, notificationHour, notificationMinute);
+      setExistingReminder(`${title} - ${body} o ${hour}:${minute}`);
       Alert.alert('Sukces', 'Powiadomienie zapisane');
+  
+      scheduleNotification(title, body, notificationHour, notificationMinute);
     } catch (error) {
       Alert.alert('Błąd', 'Nie udało się zapisać powiadomienia');
       console.error(error);
+    }
+  };
+
+  const handleCancel = async () => {
+    try {
+      await cancelAllNotifications();
+      setExistingReminder(null);
+      Alert.alert('Powiadomienie anulowane', 'Wszystkie powiadomienia zostały usunięte.');
+      console.log('Powiadomienie anulowane.');
+    } catch (error) {
+      Alert.alert('Błąd', 'Nie udało się anulować powiadomienia');
+      console.error('Błąd anulowania powiadomienia:', error);
     }
   };
 
@@ -61,6 +82,9 @@ const SetReminder = () => {
           <Text style={styles.currentReminderText}>Aktualne przypomnienie: {existingReminder}</Text>
         </View>
       )}
+      <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+        <Text style={styles.buttonText}>Anuluj Powiadomienie</Text>
+      </TouchableOpacity>
       <TextInput
         style={styles.input}
         placeholder="Treść powiadomienia"
@@ -133,6 +157,12 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 18,
+  },
+  cancelButton: {
+    backgroundColor: '#F44336',
+    padding: 12,
+    marginVertical: 10,
+    borderRadius: 5,
   },
 });
 

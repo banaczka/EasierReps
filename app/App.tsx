@@ -1,22 +1,29 @@
-import { auth } from '@/lib/firebase';
-import { router } from 'expo-router';
-import { onAuthStateChanged } from 'firebase/auth';
+import { getUserNotification } from '@/lib/firebase';
+import { scheduleNotification } from '@/lib/notification';
+import 'fast-text-encoding';
+import { getAuth } from 'firebase/auth';
 import { useEffect } from 'react';
 
 export default function App() {
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        console.log("Zalogowany użytkownik:", currentUser.uid);
-        router.replace('/(tabs)/dashboard');
-      } else {
-        console.log("Nie zalogowano");
-        router.replace('/');
+    const initializeNotification = async () => {
+      try {
+        const user = getAuth().currentUser;
+        if (user) {
+          const notification = await getUserNotification(user.uid);
+          if (notification) {
+            scheduleNotification(notification.title, notification.body, notification.hour, notification.minute);
+            console.log('Powiadomienie ustawione przy starcie aplikacji.');
+          }
+        }
+      } catch (error) {
+        console.error('Błąd podczas ustawiania powiadomienia przy starcie:', error);
       }
-    });
-
-    return () => unsubscribe();
+    };
+  
+    initializeNotification();
   }, []);
+  
 
   return null;
 }

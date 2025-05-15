@@ -1,8 +1,10 @@
-import { auth } from '@/lib/firebase';
+import { auth, getUserNotification } from '@/lib/firebase';
+import { scheduleNotification } from '@/lib/notification';
 import { router } from 'expo-router';
+import 'fast-text-encoding';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const index = () => {
@@ -11,14 +13,21 @@ const index = () => {
 
   const signIn = async () => {
     try {
-      const user = await signInWithEmailAndPassword(auth, email, password)
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
       if (user) {
+        const notification = await getUserNotification(user.uid);
+        if (notification) {
+          scheduleNotification(notification.title, notification.body, notification.hour, notification.minute);
+          console.log('Powiadomienie ustawione po zalogowaniu.');
+        }
         router.replace('/(tabs)/dashboard');
       }
     } catch (error: any) {
-      alert('Sign in failed: ' + error.message);
+      Alert.alert('Błąd logowania', error.message);
     }
-  }
+  };
+  
 
   return (
     <SafeAreaView style={styles.container}>

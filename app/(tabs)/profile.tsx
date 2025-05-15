@@ -1,8 +1,9 @@
 import { auth } from '@/lib/firebase';
+import { cancelAllNotifications } from '@/lib/notification';
 import { useRouter } from 'expo-router';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
@@ -21,6 +22,18 @@ export default function ProfileScreen() {
     return unsubscribe;
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await cancelAllNotifications();
+      await signOut(auth);
+      Alert.alert('Wylogowano', 'Zostałeś wylogowany pomyślnie.');
+      router.replace('/');
+    } catch (error) {
+      Alert.alert('Błąd', 'Nie udało się wylogować.');
+      console.error('Błąd wylogowania:', error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Profil Użytkownika {username}</Text>
@@ -33,7 +46,7 @@ export default function ProfileScreen() {
       <TouchableOpacity style={styles.caloriesButton} onPress={() => router.push('/set-reminder')}>
         <Text style={styles.caloriesText}>Ustaw przypomnienie o suplementach</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.logoutButton} onPress={() => auth.signOut()}>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Wyloguj się</Text>
       </TouchableOpacity>
     </SafeAreaView>
