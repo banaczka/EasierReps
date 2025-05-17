@@ -245,12 +245,14 @@ const styles = StyleSheet.create({
     padding: 14, 
     margin: 8, 
     borderRadius: 8, 
-    width: '60%', 
-    alignItems: 'center' 
+    width: '40%', 
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   buttonText: { 
     color: '#fff', 
-    fontSize: 18 
+    fontSize: 18,
+    textAlign: 'center'
   },
   timerText: { 
     color: '#fff', 
