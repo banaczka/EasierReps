@@ -1,5 +1,23 @@
 import notifee, { RepeatFrequency, TimestampTrigger, TriggerType } from '@notifee/react-native';
 
+async function requestNotificationPermission() {
+  try {
+    const settings = await notifee.requestPermission();
+
+    if (settings?.ios?.authorizationStatus === 1) {
+      console.log('Powiadomienia zostały dozwolone');
+    } else if (settings?.ios?.authorizationStatus === 2) {
+      console.warn('Powiadomienia zostały tymczasowo dozwolone');
+    } else if (settings?.ios?.authorizationStatus === 0) {
+      console.warn('Powiadomienia zostały odrzucone');
+    } else {
+      console.log('Status powiadomień na Androidzie:', settings);
+    }
+  } catch (error) {
+    console.error('Błąd podczas żądania zgody na powiadomienia:', error);
+  }
+}
+
 function calculateNextTrigger(hour: number, minute: number): number {
   const now = new Date();
   const nextTrigger = new Date();
@@ -56,5 +74,5 @@ async function cancelAllNotifications() {
     }
   }
 
-export { cancelAllNotifications, scheduleNotification };
+export { cancelAllNotifications, requestNotificationPermission, scheduleNotification };
 

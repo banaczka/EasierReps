@@ -1,5 +1,5 @@
 import { auth, getUserNotification } from '@/lib/firebase';
-import { scheduleNotification } from '@/lib/notification';
+import { requestNotificationPermission, scheduleNotification } from '@/lib/notification';
 import { router } from 'expo-router';
 import 'fast-text-encoding';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 
 export default function App() {
   useEffect(() => {
+    requestNotificationPermission();
+
     const initializeNotification = async (userId: string) => {
       try {
         const notification = await getUserNotification(userId);
