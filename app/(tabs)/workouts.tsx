@@ -54,7 +54,7 @@ export default function WorkoutsScreen() {
       <Text style={styles.title}>Twoje plany treningowe</Text>
 
       <TouchableOpacity style={styles.button} onPress={() => router.push('/new-plan')}>
-        <Text style={styles.buttonText}>Dodaj nowy plan</Text>
+        <Text style={styles.buttonText}>Stwórz nowy plan</Text>
       </TouchableOpacity>
 
       {plans.length === 0 ? (
@@ -71,7 +71,7 @@ export default function WorkoutsScreen() {
                 data={item.exercises}
                 keyExtractor={(_, index) => index.toString()}
                 renderItem={({ item }) => (
-                  <Text style={styles.exercise}>{item.name} - {item.sets}x ({item.repsRange})</Text>
+                  <Text style={styles.exercise}>{item.name} - liczba serii: {item.sets} ({item.repsRange} powtórzeń)</Text>
                 )}
               />
               <TouchableOpacity

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUserPlans } from '../lib/firebase';
 
@@ -25,26 +25,35 @@ export default function SelectWorkoutScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Wybierz plan treningowy</Text>
-      <FlatList
-        data={plans}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity 
-            style={styles.planItem}
-            onPress={() => router.push({ pathname: '/active-workout', params: { planId: item.id } })}
-          >
-            <Text style={styles.planName}>{item.name}</Text>
-            <Text style={styles.planDays}>{item.days.join(', ')}</Text>
-            <FlatList
-              data={item.exercises}
-              keyExtractor={(_, index) => index.toString()}
-              renderItem={({ item }) => (
-                <Text style={styles.exercise}>{item.name} - {item.sets}x ({item.repsRange})</Text>
-              )}
-            />
+      {plans.length === 0 ? (
+        <View style={styles.noPlansContainer}>
+          <Text style={styles.noPlansText}>Nie znaleziono żadnych planów treningowych.</Text>
+          <TouchableOpacity style={styles.newPlanButton} onPress={() => router.push('/new-plan')}>
+            <Text style={styles.newPlanButtonText}>Stwórz nowy plan</Text>
           </TouchableOpacity>
-        )}
-      />
+        </View>
+      ) : (
+        <FlatList
+          data={plans}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity 
+              style={styles.planItem}
+              onPress={() => router.push({ pathname: '/active-workout', params: { planId: item.id } })}
+            >
+              <Text style={styles.planName}>{item.name}</Text>
+              <Text style={styles.planDays}>{item.days.join(', ')}</Text>
+              <FlatList
+                data={item.exercises}
+                keyExtractor={(_, index) => index.toString()}
+                renderItem={({ item }) => (
+                  <Text style={styles.exercise}>{item.name} - liczba serii: {item.sets} ({item.repsRange} powtórzeń)</Text>
+                )}
+              />
+            </TouchableOpacity>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -78,5 +87,26 @@ const styles = StyleSheet.create({
   exercise: {
     color: '#fff',
     marginLeft: 10
-},
+  },
+  noPlansContainer: {
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  noPlansText: {
+    fontSize: 18,
+    color: '#aaa',
+    marginBottom: 10,
+    fontWeight: '600',
+  },
+  newPlanButton: {
+    backgroundColor: '#10b981',
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 8,
+  },
+  newPlanButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });

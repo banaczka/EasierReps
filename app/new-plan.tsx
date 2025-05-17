@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import React, { useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { savePlanToFirestore } from '../lib/firebase';
 
@@ -99,82 +99,48 @@ export default function NewPlanScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Dodaj nowy plan treningowy</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.title}>Dodaj nowy plan treningowy</Text>
+        <TextInput
+          placeholder='Nazwa planu'
+          value={planName}
+          onChangeText={setPlanName}
+          style={styles.input}
+        />
 
-      <TextInput
-        placeholder="Nazwa planu"
-        value={planName}
-        onChangeText={setPlanName}
-        style={styles.input}
-        placeholderTextColor="#aaa"
-      />
-
-      <Text style={styles.subtitle}>Wybierz dni tygodnia:</Text>
-      <View style={styles.daysContainer}>
-        {daysOfWeek.map((day) => (
-          <TouchableOpacity
-            key={day}
-            style={[styles.dayButton, selectedDays.includes(day) && styles.selectedDayButton]}
-            onPress={() => toggleDay(day)}
-          >
-            <Text style={styles.dayButtonText}>{day}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <Text style={styles.subtitle}>Dodaj ćwiczenie:</Text>
-      <TextInput
-        placeholder="Nazwa ćwiczenia"
-        value={exerciseName}
-        onChangeText={setExerciseName}
-        style={styles.input}
-        placeholderTextColor="#aaa"
-      />
-      <TextInput
-        placeholder="Ilość serii"
-        value={sets}
-        onChangeText={setSets}
-        style={styles.input}
-        keyboardType="numeric"
-        placeholderTextColor="#aaa"
-      />
-      <TextInput
-        placeholder="Min powtórzeń"
-        value={repsMin}
-        onChangeText={setRepsMin}
-        style={styles.input}
-        keyboardType="numeric"
-        placeholderTextColor="#aaa"
-      />
-      <TextInput
-        placeholder="Max powtórzeń"
-        value={repsMax}
-        onChangeText={setRepsMax}
-        style={styles.input}
-        keyboardType="numeric"
-        placeholderTextColor="#aaa"
-      />
-
-      <TouchableOpacity style={styles.button} onPress={addExercise}>
-        <Text style={styles.buttonText}>Dodaj ćwiczenie</Text>
-      </TouchableOpacity>
-
-      <FlatList
-        data={exercises}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item, index }) => (
-          <View style={styles.exerciseContainer}>
-            <Text style={styles.exercise}>{item.name} - {item.sets}x ({item.repsRange})</Text>
-            <TouchableOpacity onPress={() => removeExercise(index)}>
-              <Text style={styles.deleteText}>Usuń</Text>
+        <Text style={styles.subtitle}>Wybierz dni tygodnia:</Text>
+        <View style={styles.daysContainer}>
+          {daysOfWeek.map((day) => (
+            <TouchableOpacity
+              key={day}
+              style={[styles.dayButton, selectedDays.includes(day) && styles.selectedDayButton]}
+              onPress={() => toggleDay(day)}
+            >
+              <Text style={styles.dayButtonText}>{day}</Text>
             </TouchableOpacity>
-          </View>
-        )}
-      />
+          ))}
+        </View>
 
-      <TouchableOpacity style={styles.saveButton} onPress={handleSavePlan}>
-        <Text style={styles.buttonText}>Zapisz plan</Text>
-      </TouchableOpacity>
+        <Text style={styles.subtitle}>Dodaj ćwiczenie:</Text>
+        <TextInput placeholder='Nazwa ćwiczenia' value={exerciseName} onChangeText={setExerciseName} style={styles.input} />
+        <TextInput placeholder='Serii' value={sets} onChangeText={setSets} style={styles.input} keyboardType='numeric' />
+        <TextInput placeholder='Min powtórzeń' value={repsMin} onChangeText={setRepsMin} style={styles.input} keyboardType='numeric' />
+        <TextInput placeholder='Max powtórzeń' value={repsMax} onChangeText={setRepsMax} style={styles.input} keyboardType='numeric' />
+
+        <TouchableOpacity style={styles.button} onPress={addExercise}>
+          <Text style={styles.buttonText}>Dodaj ćwiczenie</Text>
+        </TouchableOpacity>
+
+        {exercises.map((exercise, index) => (
+          <View key={index} style={styles.exerciseContainer}>
+            <Text style={styles.exercise}>{exercise.name} - liczba serii: {exercise.sets} ({exercise.repsRange} powtórzeń)</Text>
+          </View>
+        ))}
+
+        <TouchableOpacity style={styles.saveButton} onPress={handleSavePlan}>
+          <Text style={styles.buttonText}>Zapisz plan</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -185,6 +151,9 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#121212',
   },
+  scrollContent: {
+    paddingBottom: 20,
+  },
   title: {
     fontSize: 24,
     color: '#fff',
@@ -192,7 +161,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: '#aaa',
+    color: '#fff',
     marginVertical: 10,
   },
   input: {
@@ -241,10 +210,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     marginVertical: 3,
-  },
-  deleteText: {
-    color: '#ff4d4d',
-    marginLeft: 10 
   },
   exerciseContainer: { 
     flexDirection: 'row', 

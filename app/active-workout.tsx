@@ -165,7 +165,7 @@ export default function ActiveWorkoutScreen() {
         <>
           {!isResting ? (
             <>
-              <Text style={styles.exerciseName}>{exercises[currentExercise].name} ({currentSet} / {exercises[currentExercise].sets})
+              <Text style={styles.exerciseName}>{exercises[currentExercise].name} (Seria: {currentSet} / {exercises[currentExercise].sets})
               </Text>
               <TextInput
                 style={styles.input}
@@ -197,7 +197,7 @@ export default function ActiveWorkoutScreen() {
             </>
           ) : (
             <>
-              <Text style={styles.exerciseName}>Następna seria: {exercises[currentExercise].name} ({currentSet} / {exercises[currentExercise].sets})
+              <Text style={styles.exerciseName}>Następna seria: {exercises[currentExercise].name} (Seria: {currentSet} / {exercises[currentExercise].sets})
               </Text>
               <Text style={styles.timerText}>Odpoczynek: {countdown} s</Text>
               <View style={styles.buttonGroup}>

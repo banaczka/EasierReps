@@ -3,7 +3,7 @@ import { cancelAllNotifications } from '@/lib/notification';
 import { useRouter } from 'expo-router';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
@@ -37,18 +37,20 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Profil Użytkownika {username}</Text>
-      <TouchableOpacity style={styles.historyButton} onPress={() => router.push('/history')}>
-        <Text style={styles.historyButtonText}>Historia treningów</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.caloriesButton} onPress={() => router.push('/calories')}>
-        <Text style={styles.caloriesText}>Licznik Kalorii</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.caloriesButton} onPress={() => router.push('/set-reminder')}>
-        <Text style={styles.caloriesText}>Ustaw przypomnienie o suplementach</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutText}>Wyloguj się</Text>
-      </TouchableOpacity>
+      <View style={styles.menuContainer}>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/history')}>
+          <Text style={styles.menuText}>Historia treningów</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/calories')}>
+          <Text style={styles.menuText}>Licznik Kalorii</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/set-reminder')}>
+          <Text style={styles.menuText}>Ustaw przypomnienie o suplementach</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.logoutItem} onPress={handleLogout}>
+          <Text style={styles.menuText}>Wyloguj się</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
@@ -67,35 +69,27 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#fff',
   },
-  historyButton: { 
-    backgroundColor: '#10b981', 
-    padding: 16, 
-    margin: 8, 
-    borderRadius: 8 
+  menuContainer: {
+    width: '100%',
   },
-  historyButtonText: { 
-    color: '#fff', 
-    fontSize: 18 
+  menuItem: {
+    backgroundColor: '#1e1e1e',
+    padding: 20,
+    marginVertical: 5,
+    alignItems: 'center',
+    borderRadius: 8,
   },
-  logoutButton: { 
-    backgroundColor: '#6200ee', 
-    padding: 16, 
-    margin: 8, 
-    borderRadius: 8 
+  logoutItem: {
+    backgroundColor: '#6200ee',
+    padding: 20,
+    marginVertical: 5,
+    alignItems: 'center',
+    borderRadius: 8,
   },
-  logoutText: { 
-    color: '#fff', 
-    fontSize: 18 
+  menuText: {
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'center',
   },
-  caloriesButton: {
-    backgroundColor: '#10b981', 
-    padding: 16, 
-    margin: 8, 
-    borderRadius: 8
-  },
-  caloriesText: {
-    color: '#fff', 
-    fontSize: 18
-  }
 });
 

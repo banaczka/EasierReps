@@ -52,7 +52,7 @@ export default function HistoryScreen() {
 
   const formatSet = (set: any) => {
     if (set.weight > 0) {
-      return `${set.reps} powtórzeń, obciążenie: ${set.weight} kg`;
+      return `${set.reps} powtórzeń, obciążenie ${set.weight} kg`;
     }
     return `${set.reps} powtórzeń`;
   };

@@ -23,7 +23,7 @@ const SetReminder = () => {
                 const userId = user.uid;
                 const reminder = await getUserNotification(userId);
                 if (reminder) {
-                    setExistingReminder(`${reminder.title} - ${reminder.body} o ${reminder.hour}:${reminder.minute}`);
+                    setExistingReminder(`${reminder.body} o ${reminder.hour}:${reminder.minute}`);
                 console.log('Wczytano przypomnienie:', reminder);
                 }
             } catch (error) {
