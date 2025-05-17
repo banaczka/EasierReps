@@ -16,7 +16,7 @@ export default function ProfileScreen() {
         const extractedUsername = user.email.split('@')[0];
         setUsername(extractedUsername);
       } else {
-        router.replace('/');
+        router.replace('/login');
       }
     });
     return unsubscribe;
@@ -27,7 +27,7 @@ export default function ProfileScreen() {
       await cancelAllNotifications();
       await signOut(auth);
       Alert.alert('Wylogowano', 'Zostałeś wylogowany pomyślnie.');
-      router.replace('/');
+      router.replace('/login');
     } catch (error) {
       Alert.alert('Błąd', 'Nie udało się wylogować.');
       console.error('Błąd wylogowania:', error);

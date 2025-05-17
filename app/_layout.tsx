@@ -58,8 +58,8 @@ export default function RootLayout() {
             headerTitleStyle: { fontSize: 20 },
           }}
         >
-          <Stack.Screen name="App" options={{ headerShown: false }} />
           <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="login" options={{ headerShown: false }} />
           <Stack.Screen name="register" options={{ title: "Rejestracja" }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="new-plan" options={{ title: "Nowy plan" }} />

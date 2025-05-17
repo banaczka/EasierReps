@@ -2,118 +2,36 @@ import { auth, getUserNotification } from '@/lib/firebase';
 import { scheduleNotification } from '@/lib/notification';
 import { router } from 'expo-router';
 import 'fast-text-encoding';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useEffect } from 'react';
 
-const index = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const signIn = async () => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      if (user) {
-        const notification = await getUserNotification(user.uid);
+export default function App() {
+  useEffect(() => {
+    const initializeNotification = async (userId: string) => {
+      try {
+        const notification = await getUserNotification(userId);
         if (notification) {
           scheduleNotification(notification.title, notification.body, notification.hour, notification.minute);
-          console.log('Powiadomienie ustawione po zalogowaniu.');
+          console.log('Powiadomienie ustawione przy starcie aplikacji.');
         }
-        router.replace('/(tabs)/dashboard');
+      } catch (error) {
+        console.error('Błąd podczas ustawiania powiadomienia przy starcie:', error);
       }
-    } catch (error: any) {
-      Alert.alert('Błąd logowania', error.message);
-    }
-  };
-  
+    };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Logowanie</Text>
-        
-        <TextInput
-          placeholder="Email"
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholderTextColor="#aaa"
-          keyboardType="email-address"
-        />
-        <TextInput
-          placeholder="Hasło"
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholderTextColor="#aaa"
-        />
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        console.log("Zalogowany użytkownik:", currentUser.uid);
+        initializeNotification(currentUser.uid);
+        router.replace('/(tabs)/dashboard');
+      } else {
+        console.log("Nie zalogowano");
+        router.replace('/login');
+      }
+    });
 
-        <TouchableOpacity style={styles.button} onPress={signIn}>
-          <Text style={styles.buttonText}>Zaloguj się</Text>
-        </TouchableOpacity>
+    return () => unsubscribe();
+  }, []);
 
-        <TouchableOpacity onPress={() => router.push('/register')}>
-          <Text style={styles.link}>Nie masz konta? Zarejestruj się</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#121212',
-  },
-  card: {
-    backgroundColor: '#1e1e1e',
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '600',
-    marginBottom: 24,
-    textAlign: 'center',
-    color: '#fff',
-  },
-  input: {
-    height: 50,
-    borderColor: '#333',
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    marginBottom: 16,
-    color: '#fff',
-    backgroundColor: '#2c2c2c',
-  },
-  button: {
-    backgroundColor: '#6200ee',
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  link: {
-    color: '#10b981',
-    fontSize: 16,
-    marginTop: 16,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-  },
-});
-
-
-
-export default index;
+  return null;
+}
