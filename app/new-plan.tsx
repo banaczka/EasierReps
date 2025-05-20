@@ -134,6 +134,9 @@ export default function NewPlanScreen() {
         {exercises.map((exercise, index) => (
           <View key={index} style={styles.exerciseContainer}>
             <Text style={styles.exercise}>{exercise.name} - liczba serii: {exercise.sets} ({exercise.repsRange} powtórzeń)</Text>
+            <TouchableOpacity onPress={() => removeExercise(index)} style={styles.removeButton}>
+              <Text style={styles.removeButtonText}>Usuń</Text>
+            </TouchableOpacity>
           </View>
         ))}
 
@@ -219,5 +222,15 @@ const styles = StyleSheet.create({
     marginVertical: 5, 
     backgroundColor: '#1e1e1e', 
     borderRadius: 8 
+  },
+  removeButton: {
+    backgroundColor: '#ff4d4d',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+  },
+  removeButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
