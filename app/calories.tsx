@@ -27,13 +27,23 @@ export default function CaloriesScreen() {
   }, []);
 
   const handleFetchCalories = async () => {
+    if (!/^\d+$/.test(quantity)) {
+      Alert.alert('Błąd', 'Ilość musi być liczbą całkowitą większą od zera.');
+      return;
+    }
+    const parsedQuantity = parseInt(quantity, 10);
     if (!food || !quantity) {
       Alert.alert('Błąd', 'Podaj produkt i ilość.');
       return;
     }
+
+    if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+      Alert.alert('Błąd', 'Ilość musi być liczbą całkowitą większą od zera.');
+      return;
+    }
   
     try {
-      const cal = await fetchCalories(food, parseFloat(quantity));
+      const cal = await fetchCalories(food, parsedQuantity);
       if (cal === null) {
         Alert.alert('Błąd', 'Nie znaleziono produktu w bazie danych.');
         return;
@@ -54,12 +64,14 @@ export default function CaloriesScreen() {
     }
   };
 
-  const handleDeleteMeal = async (mealId: string, mealCalories: number) => {
+  const handleDeleteMeal = async (mealId: string) => {
     try {
       await deleteMeal(mealId);
+      const mealsData = await getTodayMeals();
+      setMeals(mealsData);
+      const totalCalories = mealsData.reduce((sum, meal) => sum + meal.calories, 0);
+      setTodayCalories(totalCalories);
       Alert.alert('Sukces', 'Posiłek został usunięty.');
-      setTodayCalories((prev) => prev - mealCalories);
-      setMeals((prev) => prev.filter(meal => meal.id !== mealId));
     } catch (error) {
       Alert.alert('Błąd', 'Nie udało się usunąć posiłku.');
       console.error("Błąd usuwania posiłku:", error);
@@ -72,7 +84,7 @@ export default function CaloriesScreen() {
       <Text style={styles.subtitle}>Dzisiejsza suma: {todayCalories} kcal</Text>
       <TextInput
         style={styles.input}
-        placeholder="Nazwa produktu"
+        placeholder="Nazwa produktu (w języku angielskim)"
         value={food}
         onChangeText={setFood}
         placeholderTextColor="#888"
@@ -94,7 +106,7 @@ export default function CaloriesScreen() {
         renderItem={({ item }) => (
           <View style={styles.mealItemContainer}>
             <Text style={styles.mealItem}>{item.name} - {item.calories} kcal</Text>
-            <TouchableOpacity onPress={() => handleDeleteMeal(item.id, item.calories)} style={styles.deleteButton}>
+            <TouchableOpacity onPress={() => handleDeleteMeal(item.id)} style={styles.deleteButton}>
               <Text style={styles.deleteButtonText}>Usuń</Text>
             </TouchableOpacity>
           </View>

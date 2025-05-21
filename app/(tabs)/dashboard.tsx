@@ -1,13 +1,28 @@
 import { useRouter } from 'expo-router';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(getAuth(), (user) => {
+      if (user && user.email) {
+        const extractedUsername = user.email.split('@')[0];
+        setUsername(extractedUsername);
+      } else {
+        router.replace('/login');
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.greeting}>Witaj!</Text>
+      <Text style={styles.greeting}>Witaj{username ? `, ${username}` : ''}!</Text>
       <Text style={styles.subtitle}>Gotowy na trening?</Text>
 
       <TouchableOpacity style={styles.button} onPress={() => router.push('../select-workout')}>

@@ -108,8 +108,12 @@ export default function ActiveWorkoutScreen() {
       Alert.alert('Błąd', 'Wprowadź liczbę powtórzeń większą od zera');
       return;
     }
-    if (isNaN(parseFloat(weight)) || parseFloat(weight) < 0) {
+    if (!weight || isNaN(parseFloat(weight)) || parseFloat(weight) < 0) {
       Alert.alert('Błąd', 'Wprowadź ciężar większy lub równy 0');
+      return;
+    }
+    if (!restTime || isNaN(parseInt(restTime)) || parseInt(restTime) <= 0) {
+      Alert.alert('Błąd', 'Czas odpoczynku musi być liczbą większą od zera');
       return;
     }
 

@@ -36,20 +36,23 @@ const SetReminder = () => {
     const handleSave = async () => {
         try {
 
-            const parsedHour = parseInt(hour);
-            let parsedMinute = parseInt(minute);
+            const parsedHour = parseInt(hour, 10);
+            const parsedMinute = parseInt(minute, 10);
 
-            if (isNaN(parsedHour) || isNaN(parsedMinute) || parsedHour < 0 || parsedHour > 23) {
-                Alert.alert('Błąd', 'Godzina musi być liczbą z zakresu 0-23.');
+            if (!body.trim()) {
+                Alert.alert('Błąd', 'Podaj treść przypomnienia.');
+                return;
+              }
+
+            if (!/^\d+$/.test(hour) || isNaN(parsedHour) || parsedHour < 0 || parsedHour > 23) {
+                Alert.alert('Błąd', 'Godzina musi być liczbą całkowitą od 0 do 23.');
                 return;
             }
 
-            if (isNaN(parsedMinute) || parsedMinute < 0 || parsedMinute > 59) {
+            if (!/^\d+$/.test(minute) || isNaN(parsedMinute) || parsedMinute < 0 || parsedMinute > 59) {
                 Alert.alert('Błąd', 'Minuty muszą być liczbą z zakresu 00-59.');
                 return;
             }
-
-            parsedMinute = Math.max(0, parsedMinute);
             
             const user = getAuth().currentUser;
             if (!user) {
