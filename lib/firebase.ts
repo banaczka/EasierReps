@@ -27,6 +27,37 @@ export async function savePlanToFirestore(name: string, days: string[], exercise
       throw new Error("Użytkownik niezalogowany")
     }
 
+    if (typeof name !== "string" || name.trim().length < 2) {
+      throw new Error("Nazwa planu jest nieprawidłowa");
+    }
+
+    if (!Array.isArray(days) || days.length === 0 || !days.every(d => typeof d === "string")) {
+      throw new Error("Lista dni jest nieprawidłowa");
+    }
+
+    if (!Array.isArray(exercises) || exercises.length === 0) {
+      throw new Error("Brak ćwiczeń w planie");
+    }
+
+    for (const ex of exercises) {
+      if (typeof ex.name !== "string" || ex.name.trim().length === 0) {
+        throw new Error("Ćwiczenie bez nazwy");
+      }
+      if (typeof ex.sets !== "number" || ex.sets <= 0 || !Number.isInteger(ex.sets)) {
+        throw new Error("Ćwiczenie musi mieć dodatnią liczbę serii");
+      }
+      if (typeof ex.repsRange !== "string" || !ex.repsRange.match(/^\d+\s*[-]\s*\d+$/)) {
+        throw new Error("Zakres powtórzeń jest nieprawidłowy");
+      }
+      const [min, max] = ex.repsRange.split('-').map((s: string) => parseInt(s.trim(), 10));
+      if (isNaN(min) || isNaN(max) || !Number.isInteger(max) || !Number.isInteger(min)) {
+        throw new Error("Zakres powtórzeń zawiera nieprawidłowe liczby");
+      }
+      if (min > max) {
+        throw new Error("Zakres powtórzeń nie może być malejący (np. 8-12)");
+      }
+    }
+
     const q = query(
       collection(db, "plans"),
       where("userId", "==", user.uid),
@@ -81,9 +112,35 @@ export async function saveWorkoutSession(planId: string, exercises: any[]) {
     const user = getAuth().currentUser;
     if (!user) throw new Error("Użytkownik niezalogowany!");
 
+    if (typeof planId !== "string" || planId.trim().length === 0) {
+      throw new Error("Nieprawidłowy identyfikator planu");
+    }
+
+    if (!Array.isArray(exercises) || exercises.length === 0) {
+      throw new Error("Brak ćwiczeń do zapisania");
+    }
+
+    for (const ex of exercises) {
+      if (typeof ex.name !== "string" || ex.name.trim().length === 0) {
+        throw new Error("Ćwiczenie bez nazwy");
+      }
+
+      if (!Array.isArray(ex.sets) || ex.sets.length === 0) {
+        throw new Error(`Ćwiczenie "${ex.name}" nie zawiera żadnych serii`);
+      }
+
+      for (const set of ex.sets) {
+        if (typeof set.reps !== "number" || set.reps <= 0 || !Number.isInteger(set.reps)) {
+          throw new Error(`Nieprawidłowa liczba powtórzeń w ćwiczeniu "${ex.name}"`);
+        }
+        if (typeof set.weight !== "number" || set.weight < 0 || !Number.isInteger(set.weight)) {
+          throw new Error(`Nieprawidłowa waga w ćwiczeniu "${ex.name}"`);
+        }
+      }
+    }
+
     const planRef = doc(db, "plans", planId);
     const planSnap = await getDoc(planRef);
-
     const planName = planSnap.exists() ? planSnap.data().name : "Nieznany plan";
 
     const workoutSession = {
@@ -100,21 +157,6 @@ export async function saveWorkoutSession(planId: string, exercises: any[]) {
     console.error("Błąd zapisu sesji treningowej: ", error);
     throw error;
   }
-}
-
-export async function getUserWorkoutSessions() {
-  const user = getAuth().currentUser;
-  if (!user) throw new Error("Brak zalogowanego użytkownika");
-
-  const sessionsSnapshot = await getDocs(collection(db, "workoutSessions"));
-  const sessions = sessionsSnapshot.docs
-    .map(doc => {
-      const data = doc.data() as { userId: string, planId: string, date: any, exercises: any[] };
-      return { id: doc.id, ...data };
-    })
-    .filter(session => session.userId === user.uid);
-
-  return sessions;
 }
 
 export async function deleteWorkoutSession(sessionId: string) {
@@ -149,6 +191,15 @@ export async function saveMealToFirestore(name: string, calories: number) {
   try {
     const user = getAuth().currentUser;
     if (!user) throw new Error("Użytkownik niezalogowany!");
+
+    if (typeof name !== "string" || name.trim().length < 1) {
+      throw new Error("Nazwa posiłku jest nieprawidłowa");
+    }
+
+    if (typeof calories !== "number" || !Number.isInteger(calories) || calories <= 0) {
+      throw new Error("Kalorie muszą być liczbą całkowitą większą od zera");
+    }
+
     const meal = {
       userId: user.uid,
       name,
@@ -202,10 +253,27 @@ export async function saveNotification(title: string, body: string, hour: number
   try {
     const user = getAuth().currentUser;
     if (!user) throw new Error("Użytkownik niezalogowany!");
+
+    if (typeof title !== "string" || title.trim().length === 0) {
+      throw new Error("Tytuł powiadomienia jest nieprawidłowy");
+    }
+
+    if (typeof body !== "string" || body.trim().length === 0) {
+      throw new Error("Treść powiadomienia jest nieprawidłowa");
+    }
+
+    if (!Number.isInteger(hour) || hour < 0 || hour > 23) {
+      throw new Error("Godzina musi być liczbą całkowitą od 0 do 23");
+    }
+
+    if (!Number.isInteger(minute) || minute < 0 || minute > 59) {
+      throw new Error("Minuta musi być liczbą całkowitą od 0 do 59");
+    }
+
     const notification = {
       userId: user.uid,
-      title,
-      body,
+      title: title.trim(),
+      body: body.trim(),
       hour,
       minute,
     };

@@ -41,7 +41,7 @@ export default function NewPlanScreen() {
     const repsMaxNum = parseInt(repsMax);
 
     if (!exerciseName || isNaN(setsNum) || isNaN(repsMinNum) || isNaN(repsMaxNum)) {
-      Alert.alert('Błąd', 'Uzupełnij wszystkie pola dotyczące ćwiczenia');
+      Alert.alert('Błąd', 'Nieprawidłowe dane, sprawdź nazwe planu i liczbe serii lub powtórzeń');
       return false;
     }
     if (setsNum <= 0 || repsMinNum <= 0 || repsMaxNum <= 0) {
