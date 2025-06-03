@@ -43,13 +43,14 @@ export default function SelectWorkoutScreen() {
             >
               <Text style={styles.planName}>{item.name}</Text>
               <Text style={styles.planDays}>{item.days.join(', ')}</Text>
-              <FlatList
-                data={item.exercises}
-                keyExtractor={(_, index) => index.toString()}
-                renderItem={({ item }) => (
-                  <Text style={styles.exercise}>{item.name} - liczba serii: {item.sets} ({item.repsRange} powtórzeń)</Text>
-                )}
-              />
+
+              <View style={styles.exerciseList}>
+                {item.exercises.map((exercise: any, index: number) => (
+                  <Text key={index} style={styles.exercise}>
+                    {exercise.name} – {exercise.sets} serii ({exercise.repsRange} powt.)
+                  </Text>
+                ))}
+              </View>
             </TouchableOpacity>
           )}
         />
@@ -84,9 +85,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#aaa',
   },
+  exerciseList: {
+    marginTop: 8,
+    paddingLeft: 8,
+    borderLeftWidth: 2,
+    borderLeftColor: '#10b981',
+  },
   exercise: {
-    color: '#fff',
-    marginLeft: 10
+    color: '#ddd',
+    fontSize: 15,
+    marginBottom: 4,
   },
   noPlansContainer: {
     alignItems: 'center',

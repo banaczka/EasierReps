@@ -62,7 +62,7 @@ export default function RootLayout() {
           <Stack.Screen name="login" options={{ headerShown: false }} />
           <Stack.Screen name="register" options={{ title: "Rejestracja" }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="new-plan" options={{ title: "Nowy plan" }} />
+          <Stack.Screen name="new-plan" options={{ title: "Nowy plan treningowy" }} />
           <Stack.Screen name="active-workout" options={{ headerShown: false }} />
           <Stack.Screen name="select-workout" options={{ title: "Wybór planu" }} />
           <Stack.Screen name="calories" options={{ title: "Licznik Kalorii" }} />

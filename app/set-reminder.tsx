@@ -95,7 +95,7 @@ const SetReminder = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>Ustaw spersonalizowane przypomnienie</Text>
+        <Text style={styles.title}>Ustaw nowe przypomnienie</Text>
         {existingReminder && (
             <View style={styles.currentReminder}>
             <Text style={styles.currentReminderText}>Aktualne przypomnienie: {existingReminder}</Text>
@@ -130,7 +130,7 @@ const SetReminder = () => {
             maxLength={2}
         />
         <TouchableOpacity style={styles.button} onPress={handleSave}>
-            <Text style={styles.buttonText}>Zapisz powiadomienie</Text>
+            <Text style={styles.buttonText}>Zapisz przypomnienie</Text>
         </TouchableOpacity>
         </SafeAreaView>
     );
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#2c2c2c',
     },
     button: {
-        backgroundColor: '#3498db',
+        backgroundColor: '#6200ee',
         paddingVertical: 14,
         borderRadius: 8,
         alignItems: 'center',

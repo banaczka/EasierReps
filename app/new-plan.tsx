@@ -100,15 +100,15 @@ export default function NewPlanScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Dodaj nowy plan treningowy</Text>
+        <Text style={styles.title}>Nazwa planu</Text>
         <TextInput
-          placeholder='Nazwa planu'
+          placeholder='np. Trening górnej części ciała'
           value={planName}
           onChangeText={setPlanName}
           style={styles.input}
         />
 
-        <Text style={styles.subtitle}>Wybierz dni tygodnia:</Text>
+        <Text style={styles.subtitle}>Wybierz dni tygodnia</Text>
         <View style={styles.daysContainer}>
           {daysOfWeek.map((day) => (
             <TouchableOpacity
@@ -121,9 +121,9 @@ export default function NewPlanScreen() {
           ))}
         </View>
 
-        <Text style={styles.subtitle}>Dodaj ćwiczenie:</Text>
+        <Text style={styles.subtitle}>Dodaj ćwiczenia</Text>
         <TextInput placeholder='Nazwa ćwiczenia' value={exerciseName} onChangeText={setExerciseName} style={styles.input} />
-        <TextInput placeholder='Serii' value={sets} onChangeText={setSets} style={styles.input} keyboardType='numeric' />
+        <TextInput placeholder='Liczba serii' value={sets} onChangeText={setSets} style={styles.input} keyboardType='numeric' />
         <TextInput placeholder='Min powtórzeń' value={repsMin} onChangeText={setRepsMin} style={styles.input} keyboardType='numeric' />
         <TextInput placeholder='Max powtórzeń' value={repsMax} onChangeText={setRepsMax} style={styles.input} keyboardType='numeric' />
 
@@ -131,6 +131,7 @@ export default function NewPlanScreen() {
           <Text style={styles.buttonText}>Dodaj ćwiczenie</Text>
         </TouchableOpacity>
 
+        <Text style={styles.subtitle}>Ćwiczenia w planie</Text>
         {exercises.map((exercise, index) => (
           <View key={index} style={styles.exerciseContainer}>
             <Text style={styles.exercise}>{exercise.name} - liczba serii: {exercise.sets} ({exercise.repsRange} powtórzeń)</Text>
@@ -166,6 +167,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
     marginVertical: 10,
+    textAlign:'center',
+    fontWeight:'bold'
   },
   input: {
     backgroundColor: '#333',
@@ -212,16 +215,17 @@ const styles = StyleSheet.create({
   exercise: {
     color: '#fff',
     fontSize: 16,
-    marginVertical: 3,
+    marginRight: 10,
+    width: '75%'
   },
-  exerciseContainer: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    padding: 10, 
-    marginVertical: 5, 
-    backgroundColor: '#1e1e1e', 
-    borderRadius: 8 
+  exerciseContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: '#1e1e1e',
+    borderRadius: 8,
+    justifyContent: 'space-between',
   },
   removeButton: {
     backgroundColor: '#ff4d4d',
