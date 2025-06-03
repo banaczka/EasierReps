@@ -80,103 +80,169 @@ export default function CaloriesScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Twoje kalorie</Text>
-      <Text style={styles.subtitle}>Dzisiejsza suma: {todayCalories} kcal</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nazwa produktu (w języku angielskim)"
-        value={food}
-        onChangeText={setFood}
-        placeholderTextColor="#888"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Ilość (g)"
-        value={quantity}
-        onChangeText={setQuantity}
-        keyboardType="numeric"
-        placeholderTextColor="#888"
-      />
-      <TouchableOpacity style={styles.button} onPress={handleFetchCalories}>
-        <Text style={styles.buttonText}>Oblicz i dodaj</Text>
-      </TouchableOpacity>
-      <FlatList
-        data={meals}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.mealItemContainer}>
-            <Text style={styles.mealItem}>{item.name} - {item.calories} kcal</Text>
-            <TouchableOpacity onPress={() => handleDeleteMeal(item.id)} style={styles.deleteButton}>
-              <Text style={styles.deleteButtonText}>Usuń</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.summaryCard}>
+        <Text style={styles.summaryTitle}>Dzisiejsze kalorie</Text>
+        <View style={styles.calorieRow}>
+          <Text style={styles.calorieValue}>{todayCalories}</Text>
+          <Text style={styles.calorieUnit}>kcal</Text>
+        </View>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Dodaj posiłek</Text>
+        <TextInput
+          placeholder="Nazwa produktu (w języku angielskim)"
+          value={food}
+          onChangeText={setFood}
+          style={styles.input}
+          placeholderTextColor="#888"
+        />
+        <TextInput
+          placeholder="Ilość (g)"
+          value={quantity}
+          onChangeText={setQuantity}
+          keyboardType="numeric"
+          style={styles.input}
+          placeholderTextColor="#888"
+        />
+        <TouchableOpacity style={styles.button} onPress={handleFetchCalories}>
+          <Text style={styles.buttonText}>Dodaj</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.mealsSection}>
+        <Text style={styles.cardTitle}>Dzisiejsze posiłki</Text>
+        {meals.length === 0 ? (
+          <Text style={styles.noMeals}>Brak zapisanych posiłków.</Text>
+        ) : (
+          <FlatList
+            data={meals}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.mealItem}>
+                <View>
+                  <Text style={styles.mealName}>{item.name}</Text>
+                  <Text style={styles.mealCalories}>{item.calories} kcal</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => handleDeleteMeal(item.id)}
+                  style={styles.deleteButton}
+                >
+                  <Text style={styles.deleteButtonText}>Usuń</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          />
         )}
-      />
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-    container: { 
-      flex: 1, 
-      justifyContent: 'center', 
-      padding: 24, 
-      backgroundColor: '#121212' 
-    },
-    title: { 
-      fontSize: 28, 
-      color: '#fff', 
-      marginBottom: 16, 
-      textAlign: 'center' 
-    },
-    subtitle: { 
-      fontSize: 20, 
-      color: '#10b981', 
-      marginBottom: 16, 
-      textAlign: 'center' 
-    },
-    input: {
-      height: 50,
-      borderColor: '#333',
-      borderWidth: 1,
-      borderRadius: 8,
-      paddingHorizontal: 12,
-      marginBottom: 16,
-      color: '#fff',
-      backgroundColor: '#2c2c2c',
-    },
-    button: {
-      backgroundColor: '#3498db',
-      paddingVertical: 14,
-      borderRadius: 8,
-      alignItems: 'center',
-    },
-    buttonText: { 
-      color: '#fff', 
-      fontSize: 18 
-    },
-    mealItem: { 
-      color: '#fff', 
-      fontSize: 18, 
-      marginTop: 8, 
-      textAlign: 'center' 
-    },
-    mealItemContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: 10,
-      marginVertical: 5,
-      backgroundColor: '#1e1e1e',
-      borderRadius: 8,
-    },
-    deleteButton: {
-      backgroundColor: '#ff4d4d',
-      padding: 8,
-      borderRadius: 5,
-    },
-    deleteButtonText: {
-      color: '#fff',
-      fontWeight: 'bold',
-    },
-  });
+  container: {
+    flex: 1,
+    backgroundColor: '#121212',
+    padding: 20,
+  },
+  summaryCard: {
+    backgroundColor: '#10b981',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  summaryTitle: {
+    fontSize: 18,
+    color: '#fff',
+    opacity: 0.9,
+    marginBottom: 8,
+  },
+  calorieRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  calorieValue: {
+    fontSize: 48,
+    color: '#fff',
+    fontWeight: '700',
+  },
+  calorieUnit: {
+    fontSize: 20,
+    color: '#fff',
+    marginLeft: 4,
+    marginBottom: 6,
+    opacity: 0.8,
+  },
+  card: {
+    backgroundColor: '#1e1e1e',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 24,
+  },
+  cardTitle: {
+    fontSize: 18,
+    color: '#fff',
+    marginBottom: 16,
+  },
+  input: {
+    backgroundColor: '#2c2c2c',
+    color: '#fff',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#333',
+    marginBottom: 12,
+    fontSize: 16,
+  },
+  button: {
+    backgroundColor: '#3498db',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  mealsSection: {
+    flex: 1,
+  },
+  noMeals: {
+    color: '#aaa',
+    textAlign: 'center',
+    fontStyle: 'italic',
+    marginTop: 20,
+  },
+  mealItem: {
+    backgroundColor: '#1e1e1e',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  mealName: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  mealCalories: {
+    color: '#10b981',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  deleteButton: {
+    backgroundColor: '#ff4d4d',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+});

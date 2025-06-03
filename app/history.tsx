@@ -20,12 +20,18 @@ export default function HistoryScreen() {
     fetchHistory();
   }, []);
 
-  const formatDate = (date: any) => {
+  const formatDate = (date: any): string => {
     if (date && typeof date === 'object' && 'seconds' in date) {
-      return new Date(date.seconds * 1000).toLocaleString();
+      const jsDate = new Date(date.seconds * 1000);
+      return jsDate.toLocaleDateString('pl-PL', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
     }
-    return date || 'Brak daty';
+    return 'Brak daty';
   };
+  
 
   const handleDelete = async (sessionId: string) => {
     Alert.alert(
@@ -67,15 +73,10 @@ export default function HistoryScreen() {
           data={workoutHistory}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.historyItem}>
+            <View style={styles.historyItem}>
               <Text style={styles.historyTitle}>{item.name || 'Nieznany trening'}</Text>
-              <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => handleDelete(item.id)}
-                >
-                  <Text style={styles.deleteButtonText}>Usuń</Text>
-                </TouchableOpacity>
               <Text style={styles.historyDate}>{formatDate(item.date)}</Text>
+
               {item.exercises.map((exercise: any, index: number) => (
                 <View key={index} style={styles.exerciseContainer}>
                   <Text style={styles.exerciseName}>{exercise.name}</Text>
@@ -86,7 +87,14 @@ export default function HistoryScreen() {
                   ))}
                 </View>
               ))}
-            </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => handleDelete(item.id)}
+              >
+                <Text style={styles.deleteButtonText}>Usuń</Text>
+              </TouchableOpacity>
+            </View>
           )}
         />
       )}
@@ -139,10 +147,13 @@ const styles = StyleSheet.create({
     fontSize: 16, 
     marginLeft: 16 
   },
-  deleteButton: { 
-    backgroundColor: '#e74c3c', 
-    padding: 8, 
-    borderRadius: 8 
+  deleteButton: {
+    backgroundColor: '#e74c3c',
+    paddingVertical: 8,
+    paddingHorizontal: 24,
+    borderRadius: 6,
+    alignSelf: 'center',
+    marginTop: 16,
   },
   deleteButtonText: { 
     color: '#fff', 
