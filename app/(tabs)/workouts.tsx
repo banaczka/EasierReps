@@ -9,7 +9,6 @@ export default function WorkoutsScreen() {
   const router = useRouter();
   const [plans, setPlans] = useState<any[]>([]);
 
-  // Załaduj plany użytkownika
   const loadPlans = async () => {
     try {
       const userPlans = await getUserPlans();
@@ -26,7 +25,6 @@ export default function WorkoutsScreen() {
     }, [])
   );
 
-  // Usuń plan treningowy
   const handleDeletePlan = async (planId: string) => {
     Alert.alert(
       'Usuń plan',

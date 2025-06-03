@@ -107,6 +107,40 @@ export async function deletePlan(planId: string) {
   }
 }
 
+export async function countWeeklyWorkoutDays() {
+  const user = getAuth().currentUser;
+  if (!user) throw new Error("Brak zalogowanego użytkownika");
+
+  const q = query(
+    collection(db, "plans"),
+    where("userId", "==", user.uid)
+  );
+  const querySnapshot = await getDocs(q);
+
+  let dayCount = 0;
+  querySnapshot.forEach(doc => {
+    const data = doc.data();
+    if (Array.isArray(data.days)) {
+      dayCount += data.days.length;
+    }
+  });
+
+  return dayCount;
+}
+
+export async function countUserPlans() {
+  const user = getAuth().currentUser;
+  if (!user) throw new Error("Brak zalogowanego użytkownika");
+
+  const q = query(
+    collection(db, "plans"),
+    where("userId", "==", user.uid)
+  );
+  const querySnapshot = await getDocs(q);
+
+  return querySnapshot.size;
+}
+
 export async function saveWorkoutSession(planId: string, exercises: any[]) {
   try {
     const user = getAuth().currentUser;
@@ -185,6 +219,22 @@ export async function getWorkoutHistory() {
     console.error("Błąd pobierania historii treningów:", error);
     throw error;
   }
+}
+
+export async function getLastWorkoutDate() {
+  const user = getAuth().currentUser;
+  if (!user) throw new Error("Brak zalogowanego użytkownika");
+
+  const q = query(
+    collection(db, "workoutSessions"),
+    where("userId", "==", user.uid),
+    orderBy("date", "desc"),
+  );
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) return null;
+
+  const latest = snapshot.docs[0].data();
+  return latest.date.toDate();
 }
 
 export async function saveMealToFirestore(name: string, calories: number) {
