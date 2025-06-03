@@ -1,7 +1,7 @@
 import { deleteMeal, getTodayMeals, saveMealToFirestore } from '@/lib/firebase';
 import { fetchCalories } from '@/lib/nutrition';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CaloriesScreen() {
@@ -80,6 +80,7 @@ export default function CaloriesScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
       <View style={styles.summaryCard}>
         <Text style={styles.summaryTitle}>Dzisiejsze kalorie</Text>
         <View style={styles.calorieRow}>
@@ -115,28 +116,25 @@ export default function CaloriesScreen() {
         {meals.length === 0 ? (
           <Text style={styles.noMeals}>Brak zapisanych posiłków.</Text>
         ) : (
-          <FlatList
-            data={meals}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View style={styles.mealItem}>
-                <View>
-                  <Text style={styles.mealName}>{item.name}</Text>
-                  <Text style={styles.mealCalories}>{item.calories} kcal</Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() => handleDeleteMeal(item.id)}
-                  style={styles.deleteButton}
-                >
-                  <Text style={styles.deleteButtonText}>Usuń</Text>
-                </TouchableOpacity>
+          meals.map((item) => (
+            <View key={item.id} style={styles.mealItem}>
+              <View>
+                <Text style={styles.mealName}>{item.name}</Text>
+                <Text style={styles.mealCalories}>{item.calories} kcal</Text>
               </View>
-            )}
-          />
+              <TouchableOpacity
+                onPress={() => handleDeleteMeal(item.id)}
+                style={styles.deleteButton}
+              >
+                <Text style={styles.deleteButtonText}>Usuń</Text>
+              </TouchableOpacity>
+            </View>
+          ))
         )}
       </View>
-    </SafeAreaView>
-  );
+    </ScrollView>
+  </SafeAreaView>
+);
 }
 
 const styles = StyleSheet.create({
@@ -245,4 +243,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
   },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  
 });
