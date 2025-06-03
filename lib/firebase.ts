@@ -98,6 +98,37 @@ export async function getUserPlans() {
   return plans;
 }
 
+export async function getUserPlansWithStats() {
+  const user = getAuth().currentUser;
+  if (!user) throw new Error("Brak zalogowanego użytkownika");
+
+  const plansSnapshot = await getDocs(
+    query(collection(db, "plans"), where("userId", "==", user.uid))
+  );
+
+  const plans = plansSnapshot.docs.map(doc => {
+    const data = doc.data() as {
+      name: string;
+      days: string[];
+      exercises: { name: string; sets: number; repsRange: string }[];
+    };
+
+    const totalSets = data.exercises.reduce((sum, ex) => sum + ex.sets, 0);
+
+    return {
+      id: doc.id,
+      name: data.name,
+      days: data.days,
+      exercises: data.exercises,
+      totalSets,
+      totalExercises: data.exercises.length,
+    };
+  });
+
+  return plans;
+}
+
+
 export async function deletePlan(planId: string) {
   try {
     await deleteDoc(doc(db, "plans", planId));

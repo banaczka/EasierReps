@@ -104,24 +104,36 @@ export default function ActiveWorkoutScreen() {
   }, [countdown, hasSkipped]);
 
   const handleFinishSet = () => {
-    if (!reps || isNaN(parseInt(reps)) || parseInt(reps) <= 0) {
-      Alert.alert('Błąd', 'Wprowadź liczbę powtórzeń większą od zera');
+    const repsClean = reps.trim();
+    const weightClean = weight.trim();
+    const restTimeClean = restTime.trim();
+    
+    const isInteger = (val: string) => /^[1-9][0-9]*$/.test(val);
+    const isNumber = (val: string) => /^([0-9]+(?:\.[0-9]+)?)$/.test(val);
+    
+    if (!isInteger(repsClean)) {
+      Alert.alert('Błąd', 'Powtórzenia muszą być liczbą całkowitą większą od zera');
       return;
     }
-    if (!weight || isNaN(parseFloat(weight)) || parseFloat(weight) < 0) {
-      Alert.alert('Błąd', 'Wprowadź ciężar większy lub równy 0');
+    if (!isNumber(weightClean)) {
+      Alert.alert('Błąd', 'Ciężar musi być liczbą większą lub równą 0');
       return;
     }
-    if (!restTime || isNaN(parseInt(restTime)) || parseInt(restTime) <= 0) {
-      Alert.alert('Błąd', 'Czas odpoczynku musi być liczbą większą od zera');
+    if (!isInteger(restTimeClean)) {
+      Alert.alert('Błąd', 'Czas odpoczynku musi być liczbą całkowitą większą od zera');
       return;
     }
+    
+    const repsNum = parseInt(repsClean, 10);
+    const weightNum = parseFloat(weightClean);
+    const restTimeNum = parseInt(restTimeClean, 10);
+
 
     const updatedSession = [...sessionData];
     if (!updatedSession[currentExercise]) {
       updatedSession[currentExercise] = { name: exercises[currentExercise].name, sets: [] };
     }
-    updatedSession[currentExercise].sets.push({ reps: parseInt(reps), weight: parseFloat(weight) });
+    updatedSession[currentExercise].sets.push({ reps: repsNum, weight: weightNum });
 
     setSessionData(updatedSession);
     setReps('');
@@ -168,12 +180,18 @@ export default function ActiveWorkoutScreen() {
       {exercises.length > 0 && currentExercise < exercises.length && (
         <>
           {!isResting ? (
-            <>
-              <Text style={styles.exerciseName}>{exercises[currentExercise].name} (Seria: {currentSet} / {exercises[currentExercise].sets})
+            <View style={styles.card}>
+              <Text style={styles.title}>{exercises[currentExercise].name}</Text>
+              <Text style={styles.subtitle}>
+                Seria {currentSet} / {exercises[currentExercise].sets}
               </Text>
+              <Text style={styles.repsRange}>
+                {exercises[currentExercise].repsRange} powtórzeń
+              </Text>
+  
               <TextInput
                 style={styles.input}
-                placeholder="Powtórzenia"
+                placeholder="Powtórzenia (np. 10)"
                 value={reps}
                 onChangeText={setReps}
                 keyboardType="numeric"
@@ -181,7 +199,7 @@ export default function ActiveWorkoutScreen() {
               />
               <TextInput
                 style={styles.input}
-                placeholder="Ciężar (kg)"
+                placeholder="Ciężar (kg) (np. 50)"
                 value={weight}
                 onChangeText={setWeight}
                 keyboardType="numeric"
@@ -195,84 +213,172 @@ export default function ActiveWorkoutScreen() {
                 keyboardType="numeric"
                 placeholderTextColor="#aaa"
               />
-              <TouchableOpacity style={styles.button} onPress={handleFinishSet}>
-                <Text style={styles.buttonText}>{currentSet >= exercises[currentExercise]?.sets && currentExercise >= exercises.length - 1 ? 'Zakończ trening' : 'Zakończ serie'}</Text>
+  
+              <TouchableOpacity style={styles.finishButton} onPress={handleFinishSet}>
+                <Text style={styles.buttonText}>Zakończ serię</Text>
               </TouchableOpacity>
-            </>
+              <TouchableOpacity style={styles.stopButton} onPress={handleExit}>
+                <Text style={styles.buttonText}>Przerwij trening</Text>
+              </TouchableOpacity>
+            </View>
           ) : (
             <>
-              <Text style={styles.exerciseName}>Następna seria: {exercises[currentExercise].name} (Seria: {currentSet} / {exercises[currentExercise].sets})
-              </Text>
-              <Text style={styles.timerText}>Odpoczynek: {countdown} s</Text>
-              <View style={styles.buttonGroup}>
-                <TouchableOpacity style={styles.button} onPress={addMinute}>
-                  <Text style={styles.buttonText}>+1 Minuta</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={skipRest}>
-                  <Text style={styles.buttonText}>Zakończ odpoczynek</Text>
+              <View style={styles.card}>
+                <Text style={styles.restTitle}>Odpoczynek</Text>
+                <Text style={styles.restTimer}>
+                  {countdown} <Text style={styles.restTimerSmall}>s</Text>
+                </Text>
+                <Text style={styles.nextUp}>
+                  Następnie: {exercises[currentExercise].name} (Seria {currentSet}/{exercises[currentExercise].sets})
+                </Text>
+
+                <View style={styles.restButtons}>
+                  <TouchableOpacity style={styles.greenButton} onPress={() => setCountdown((prev) => (prev ?? 0) + 30)}>
+                    <Text style={styles.buttonText}>+30s</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.greenButton} onPress={skipRest}>
+                    <Text style={styles.buttonText}>Pomiń</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity style={styles.stopButton} onPress={handleExit}>
+                  <Text style={styles.buttonText}>Przerwij trening</Text>
                 </TouchableOpacity>
               </View>
             </>
           )}
         </>
       )}
-      <TouchableOpacity style={styles.stopButton} onPress={handleExit}>
-      <Text style={styles.buttonText}>Przerwij trening</Text>
-    </TouchableOpacity>
     </SafeAreaView>
   );
+  
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, 
-    backgroundColor: '#121212', 
-    padding: 24, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
-  exerciseName: { 
-    fontSize: 22, 
-    color: '#fff', 
-    marginBottom: 12 
-  },
-  input: { 
-    backgroundColor: '#333', 
-    color: '#fff', 
-    padding: 12, 
-    marginVertical: 8, 
-    borderRadius: 8, 
-    width: '80%' 
-  },
-  button: { 
-    backgroundColor: '#10b981', 
-    padding: 14, 
-    margin: 8, 
-    borderRadius: 8, 
-    width: '40%', 
+    flex: 1,
+    backgroundColor: '#121212',
+    padding: 24,
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'center'
   },
-  buttonText: { 
-    color: '#fff', 
+  card: {
+    backgroundColor: '#1e1e1e',
+    padding: 20,
+    borderRadius: 12,
+    width: '100%',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#ccc',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  repsRange: {
+    fontSize: 14,
+    color: '#aaa',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  input: {
+    backgroundColor: '#333',
+    color: '#fff',
+    padding: 12,
+    marginVertical: 8,
+    borderRadius: 8,
+    width: '100%',
+    textAlign: 'center',
+  },
+  finishButton: {
+    backgroundColor: '#8B00FF',
+    padding: 14,
+    marginTop: 16,
+    borderRadius: 8,
+    width: '100%',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
     fontSize: 18,
-    textAlign: 'center'
+    textAlign: 'center',
   },
-  timerText: { 
-    color: '#fff', 
-    fontSize: 22, 
-    marginVertical: 12 
+  exerciseName: {
+    fontSize: 20,
+    color: '#fff',
+    marginBottom: 12,
+    textAlign: 'center',
   },
-  buttonGroup: { 
-    flexDirection: 'row', 
-    justifyContent: 'center' 
+  timerText: {
+    color: '#fff',
+    fontSize: 22,
+    marginVertical: 12,
+  },
+  buttonGroup: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  button: {
+    backgroundColor: '#10b981',
+    padding: 14,
+    margin: 8,
+    borderRadius: 8,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   stopButton: {
     backgroundColor: '#d9534f',
-    padding: 14, 
-    margin: 8, 
-    borderRadius: 8, 
-    width: '60%', 
-    alignItems: 'center' 
-  }
+    padding: 14,
+    margin: 8,
+    borderRadius: 8,
+    width: '100%',
+    alignItems: 'center',
+  },
+  restTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  restTimer: {
+    fontSize: 64,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+  },
+  restTimerSmall: {
+    fontSize: 24,
+    fontWeight: 'normal',
+    color: '#ccc',
+  },
+  nextUp: {
+    fontSize: 14,
+    color: '#10b981',
+    marginVertical: 16,
+    textAlign: 'center',
+  },
+  restButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  greenButton: {
+    backgroundColor: '#10b981',
+    padding: 14,
+    margin: 8,
+    borderRadius: 8,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
 });

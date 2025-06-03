@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getUserPlans } from '../lib/firebase';
+import { getUserPlansWithStats } from '../lib/firebase';
 
 export default function SelectWorkoutScreen() {
   const router = useRouter();
@@ -10,7 +10,7 @@ export default function SelectWorkoutScreen() {
 
   const loadPlans = async () => {
     try {
-      const userPlans = await getUserPlans();
+      const userPlans = await getUserPlansWithStats();
       setPlans(userPlans);
     } catch (error) {
       console.error('Błąd ładowania planów:', error);
@@ -25,6 +25,7 @@ export default function SelectWorkoutScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Wybierz plan treningowy</Text>
+  
       {plans.length === 0 ? (
         <View style={styles.noPlansContainer}>
           <Text style={styles.noPlansText}>Nie znaleziono żadnych planów treningowych.</Text>
@@ -37,26 +38,44 @@ export default function SelectWorkoutScreen() {
           data={plans}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <TouchableOpacity 
-              style={styles.planItem}
-              onPress={() => router.push({ pathname: '/active-workout', params: { planId: item.id } })}
-            >
+            <View style={styles.planItem}>
               <Text style={styles.planName}>{item.name}</Text>
-              <Text style={styles.planDays}>{item.days.join(', ')}</Text>
-
+  
+              <View style={styles.daysRow}>
+                {item.days.map((day: string, i: number) => (
+                  <View key={i} style={styles.dayTag}>
+                    <Text style={styles.dayTagText}>{day}</Text>
+                  </View>
+                ))}
+              </View>
+  
+              <Text style={styles.exerciseCount}>
+                {item.totalExercises} ćwiczeń • {item.totalSets} serii
+              </Text>
+  
               <View style={styles.exerciseList}>
                 {item.exercises.map((exercise: any, index: number) => (
                   <Text key={index} style={styles.exercise}>
-                    {exercise.name} – {exercise.sets} serii ({exercise.repsRange} powt.)
+                    {exercise.name} ({exercise.sets} × {exercise.repsRange})
                   </Text>
                 ))}
               </View>
-            </TouchableOpacity>
+  
+              <TouchableOpacity
+                style={styles.startButton}
+                onPress={() =>
+                  router.push({ pathname: '/active-workout', params: { planId: item.id } })
+                }
+              >
+                <Text style={styles.startButtonText}>▶ Rozpocznij trening</Text>
+              </TouchableOpacity>
+            </View>
           )}
         />
       )}
     </SafeAreaView>
   );
+  
 }
 
 const styles = StyleSheet.create({
@@ -117,4 +136,37 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  daysRow: {
+  flexDirection: 'row',
+  marginTop: 6,
+  marginBottom: 10,
+  flexWrap: 'wrap',
+  gap: 6,
+},
+dayTag: {
+  backgroundColor: '#2e2e2e',
+  borderRadius: 6,
+  paddingHorizontal: 8,
+  paddingVertical: 4,
+},
+dayTagText: {
+  color: '#ccc',
+  fontSize: 12,
+},
+exerciseCount: {
+  color: '#10b981',
+  fontSize: 14,
+  marginBottom: 6,
+},
+startButton: {
+  backgroundColor: '#10b981',
+  paddingVertical: 10,
+  borderRadius: 8,
+  alignItems: 'center',
+},
+startButtonText: {
+  color: '#fff',
+  fontWeight: '600',
+  fontSize: 16,
+},
 });
